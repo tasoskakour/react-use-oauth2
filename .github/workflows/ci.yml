@@ -1,0 +1,34 @@
+name: ci
+
+on: push
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      REACT_APP_SENTRY_DSN:
+      REACT_APP_SENTRY_ENVIRONMENT: ci
+      REACT_APP_GA:
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        run: npm i --legacy-peer-deps
+
+      - name: 🧪 Run test script
+        run: npm test
+
+      - name: ▶️ Generate coverage report
+        run: npm run generate-coverage-report
+
+      - name: ⬆️ Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.lcov

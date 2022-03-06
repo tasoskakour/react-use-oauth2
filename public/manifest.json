@@ -1,0 +1,61 @@
+{
+	"short_name": "React App",
+	"name": "Create React App Sample",
+	"icons": [
+		{
+			"src": "favicons/favicon-16.png",
+			"sizes": "16x16",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-32.png",
+			"sizes": "32x32",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-64.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-72.png",
+			"sizes": "72x72",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-96.png",
+			"sizes": "96x96",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-144.png",
+			"sizes": "144x144",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-160.png",
+			"sizes": "160x160",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "favicons/favicon-310.png",
+			"sizes": "310x310",
+			"type": "image/png"
+		},
+		{
+			"src": "maskable_icon.png",
+			"sizes": "413x413",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	],
+	"start_url": ".",
+	"display": "standalone",
+	"theme_color": "#000000",
+	"background_color": "#ffffff"
+}
