@@ -1,8 +1,25 @@
 {
   "name": "react-use-oauth2",
+  "author": {
+    "name": "Tasos Kakouris",
+    "email": "tasoskakour@gmail.com",
+    "website": "https://tasoskakour.com"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "typescript",
+    "nodejs",
+    "oauth2"
+  ],
   "version": "0.0.1",
-  "description":"Add some description here",
-  "private": true,
+  "description": "A React hook that handles OAuth2 authorization flow.",
+  "license": "MIT",
+  "homepage": "https://github.com/tasoskakour/react-use-oauth2#readme",
+    "bugs": {
+        "url": "https://github.com/tasoskakour/react-use-oauth2/issues"
+    },
+  "repository": "github:tasoskakour/react-use-oauth2",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "dependencies": {
@@ -24,20 +41,6 @@
     "lint": "eslint . --cache",
     "dev": "react-scripts start",
     "prepare": "husky install"
-  },
-  "browserslist": {
-    "production": [
-      ">1%",
-      "not dead",
-      "not op_mini all",
-      "not ie > 0",
-      "not ie_mob > 0"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
