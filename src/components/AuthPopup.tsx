@@ -1,3 +1,3 @@
-const AuthPopup = () => <div>Helo world, I am a Popup</div>;
+const AuthPopup = () => <div>Hello world, I am a Popup</div>;
 
 export default AuthPopup;
