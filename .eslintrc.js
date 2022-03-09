@@ -4,16 +4,6 @@ module.exports = {
 	ignorePatterns: ['dist', 'coverage'],
 	rules: {
 		// your overrides
-		'import/no-extraneous-dependencies': [
-			'error',
-			{
-				devDependencies: [
-					'**/*.test.ts',
-					'**/*.test.tsx',
-					'rollup.config.js',
-					'**/*.stories.tsx',
-				],
-			},
-		],
+		'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
 	},
 };
