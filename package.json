@@ -48,14 +48,19 @@
       "last 1 safari version"
     ]
   },
+  "peerDependencies": {
+    "react": "^17.0.2"
+  },
   "devDependencies": {
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
     "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-run": "^2.1.0",
     "@rollup/plugin-typescript": "^8.3.1",
     "@testing-library/react": "12.1.2",
     "@types/jest": "^27.4.1",
@@ -64,12 +69,14 @@
     "@types/react-dom": "^17.0.13",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
+    "builtin-modules": "^3.2.0",
     "eslint": "^8.10.0",
     "eslint-config-tasoskakour-typescript-prettier": "^2.0.5",
+    "fastify": "^3.27.4",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "lint-staged": "^12.3.5",
-    "react": "^17.0.2",
+    "node-fetch": "^3.2.3",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.2",
     "rollup": "^2.69.2",
