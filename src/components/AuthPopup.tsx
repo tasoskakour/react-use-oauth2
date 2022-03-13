@@ -8,7 +8,7 @@ const checkState = (receivedState: string) => {
 };
 
 type Props = {
-	Component?: React.ReactElement | string;
+	Component?: React.ReactElement;
 };
 
 const AuthPopup = (props: Props) => {
