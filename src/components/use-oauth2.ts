@@ -102,6 +102,7 @@ export type State<TData = AuthTokenPayload> = {
 const LOGIN = 'LOGIN';
 const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 const LOGIN_ERROR = 'LOGIN_ERROR';
+const LOGIN_CANCEL = 'LOGIN_CANCEL';
 
 export type Action =
 	| {
@@ -114,6 +115,9 @@ export type Action =
 	| {
 			type: 'LOGIN_ERROR';
 			error: string;
+	  }
+	| {
+			type: 'LOGIN_CANCEL';
 	  };
 
 const reducer = <TData>(state: State<TData>, action: Action): State<TData> => {
@@ -130,12 +134,16 @@ const reducer = <TData>(state: State<TData>, action: Action): State<TData> => {
 				loading: false,
 				data: action.data,
 			};
-
 		case LOGIN_ERROR:
 			return {
 				...state,
 				loading: false,
 				error: action.error || 'Unknown error occured during logging in.',
+			};
+		case LOGIN_CANCEL:
+			return {
+				...state,
+				loading: false,
 			};
 		default:
 			throw new Error('Unknown action type');
@@ -204,7 +212,7 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 				if (type === OAUTH_RESPONSE) {
 					const errorMaybe = message?.data?.error;
 					if (errorMaybe) {
-						dispatch({ type: 'LOGIN_ERROR', error: errorMaybe });
+						dispatch({ type: LOGIN_ERROR, error: errorMaybe });
 						if (onError) await onError(errorMaybe);
 					} else {
 						let payload = message?.data?.payload;
@@ -224,7 +232,7 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 							);
 							payload = await response.json();
 						}
-						dispatch({ type: 'LOGIN_SUCCESS', data: payload });
+						dispatch({ type: LOGIN_SUCCESS, data: payload });
 						if (onSuccess) {
 							await onSuccess(payload);
 						}
@@ -242,13 +250,13 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 		// 4. Begin interval to check if popup was closed forcefully by the user
 		intervalRef.current = setInterval(() => {
-			const popupClosed = popupRef.current?.window?.closed;
+			const popupClosed = !popupRef.current?.window || popupRef.current?.window?.closed;
 			if (popupClosed) {
+				// Popup was closed before completing auth...
 				dispatch({
-					type: 'LOGIN_ERROR',
-					error: 'Authentication Popup was closed by the user.',
+					type: LOGIN_CANCEL,
 				});
-				console.warn('Warning: Popup was closed before authenticating');
+				console.warn('Warning: Popup was closed before completing authentication.');
 				clearInterval(intervalRef.current);
 				removeState();
 				window.removeEventListener('message', handleMessageListener);
