@@ -4,38 +4,61 @@ import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
-import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import json from '@rollup/plugin-json';
+import run from '@rollup/plugin-run';
+import builtins from 'builtin-modules';
+
+const commonPlugins = [
+	replace({
+		// process: JSON.stringify({ env: { NODE_ENV: 'development', tasos: 'yolo' } }),
+		values: {
+			'process.env.REACT_APP_CLIENT_ID': `'${process.env.REACT_APP_CLIENT_ID}'`,
+			'process.env.REACT_APP_AUTHORIZE_URL': `'${process.env.REACT_APP_AUTHORIZE_URL}'`,
+			'process.env.REACT_APP_CLIENT_SECRET': `'${process.env.REACT_APP_CLIENT_SECRET}'`,
+			'process.env.NODE_ENV': '"development"',
+		},
+		preventAssignment: true,
+	}),
+	commonjs({
+		ignoreDynamicRequires: true,
+	}),
+	resolve(),
+
+	json(),
+	typescript({ tsconfig: './tsconfig.json' }),
+];
 
 export default [
 	{
-		input: 'src/example/index.ts',
+		input: 'example/client/index.ts',
 		output: {
-			file: 'dist/index.js',
+			file: 'dist/browser.js',
 			format: 'iife',
 			sourcemap: true,
 		},
 		plugins: [
-			replace({
-				// process: JSON.stringify({ env: { NODE_ENV: 'development', tasos: 'yolo' } }),
-				values: {
-					'process.env.REACT_APP_CLIENT_ID': `'${process.env.REACT_APP_CLIENT_ID}'`,
-					'process.env.REACT_APP_AUTHORIZE_URL': `'${process.env.REACT_APP_AUTHORIZE_URL}'`,
-					'process.env.NODE_ENV': '"development"',
-				},
-			}),
-			peerDepsExternal(),
-			resolve(),
-			commonjs(),
-			typescript({ tsconfig: './tsconfig.json' }),
+			...commonPlugins,
 			serve({
 				open: true,
 				verbose: true,
-				contentBase: ['', 'example'],
+				contentBase: ['.', './example/client'],
 				host: 'localhost',
 				port: 3000,
 				historyApiFallback: true,
 			}),
 			livereload({ watch: 'dist' }),
 		],
+		external: builtins,
+	},
+	{
+		input: 'example/server/index.ts',
+		output: {
+			inlineDynamicImports: true,
+			file: 'dist/server.js',
+			format: 'cjs',
+			sourcemap: true,
+		},
+		plugins: [...commonPlugins, run()],
+		external: builtins,
 	},
 ];
