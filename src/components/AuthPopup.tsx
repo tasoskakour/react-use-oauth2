@@ -7,7 +7,13 @@ const checkState = (receivedState: string) => {
 	return state === receivedState;
 };
 
-const AuthPopup = () => {
+type Props = {
+	Component?: React.ReactElement | string;
+};
+
+const AuthPopup = (props: Props) => {
+	const { Component = <div style={{ margin: '12px' }}>Loading...</div> } = props;
+
 	// On mount
 	useEffect(() => {
 		const payload = {
@@ -20,7 +26,7 @@ const AuthPopup = () => {
 		if (error) {
 			window.opener.postMessage({
 				type: OAUTH_RESPONSE,
-				error: decodeURI(error) || 'OAuth error:An error has occured.',
+				error: decodeURI(error) || 'OAuth error: An error has occured.',
 			});
 		} else if (state && checkState(state)) {
 			window.opener.postMessage({
@@ -35,7 +41,7 @@ const AuthPopup = () => {
 		}
 	}, []);
 
-	return <div>Popup Loading...</div>;
+	return Component;
 };
 
 export default AuthPopup;
