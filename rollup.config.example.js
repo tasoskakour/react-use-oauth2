@@ -14,8 +14,9 @@ const commonPlugins = [
 		values: {
 			'process.env.REACT_APP_CLIENT_ID': `'${process.env.REACT_APP_CLIENT_ID}'`,
 			'process.env.REACT_APP_AUTHORIZE_URL': `'${process.env.REACT_APP_AUTHORIZE_URL}'`,
-			'process.env.REACT_APP_CLIENT_SECRET': `'${process.env.REACT_APP_CLIENT_SECRET}'`,
 			'process.env.REACT_APP_SCOPE': `'${process.env.REACT_APP_SCOPE}'`,
+			'process.env.AUTHORIZATION_SERVER_TOKEN_URL': `'${process.env.AUTHORIZATION_SERVER_TOKEN_URL}'`,
+			'process.env.CLIENT_SECRET': `'${process.env.CLIENT_SECRET}'`,
 			'process.env.NODE_ENV': '"development"',
 		},
 		preventAssignment: true,
