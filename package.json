@@ -25,7 +25,7 @@
   "dependencies": {
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "clsx": "^1.1.1"
+    "use-local-storage-state": "^17.0.1"
   },
   "scripts": {
     "build": "rollup -c",

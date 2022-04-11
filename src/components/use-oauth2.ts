@@ -1,4 +1,5 @@
-import { useCallback, useReducer, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import useLocalStorageState from 'use-local-storage-state';
 import {
 	DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
 	OAUTH_RESPONSE,
@@ -93,62 +94,7 @@ const cleanup = (
 	window.removeEventListener('message', handleMessageListener);
 };
 
-export type State<TData = AuthTokenPayload> = {
-	data: TData | null;
-	loading: boolean;
-	error: string | null;
-};
-
-const LOGIN = 'LOGIN';
-const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-const LOGIN_ERROR = 'LOGIN_ERROR';
-const LOGIN_CANCEL = 'LOGIN_CANCEL';
-
-export type Action =
-	| {
-			type: 'LOGIN';
-	  }
-	| {
-			type: 'LOGIN_SUCCESS';
-			data: any;
-	  }
-	| {
-			type: 'LOGIN_ERROR';
-			error: string;
-	  }
-	| {
-			type: 'LOGIN_CANCEL';
-	  };
-
-const reducer = <TData>(state: State<TData>, action: Action): State<TData> => {
-	switch (action.type) {
-		case LOGIN:
-			return {
-				...state,
-				loading: true,
-				error: null,
-			};
-		case LOGIN_SUCCESS:
-			return {
-				...state,
-				loading: false,
-				data: action.data,
-			};
-		case LOGIN_ERROR:
-			return {
-				...state,
-				loading: false,
-				error: action.error || 'Unknown error occured during logging in.',
-			};
-		case LOGIN_CANCEL:
-			return {
-				...state,
-				loading: false,
-			};
-		default:
-			throw new Error('Unknown action type');
-	}
-};
+export type State<TData = AuthTokenPayload> = TData | null;
 
 const formatExchangeCodeForTokenServerURL = (
 	exchangeCodeForTokenServerURL: string,
@@ -180,21 +126,21 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 	const popupRef = useRef<Window | null>();
 	const intervalRef = useRef<any>();
-	const [hookState, dispatch] = useReducer<(state: State<TData>, action: Action) => State<TData>>(
-		reducer,
-		{
-			data: null,
-			error: null,
-			loading: false,
-		}
-	);
+	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
+	const [data, setData] = useLocalStorageState<State>(`${authorizeUrl}-${clientId}-${scope}`, {
+		defaultValue: null,
+	});
+
 	const exchangeCodeForTokenServerURL =
 		responseType === 'code' && props.exchangeCodeForTokenServerURL;
 	const exchangeCodeForTokenMethod = responseType === 'code' && props.exchangeCodeForTokenMethod;
 
 	const getAuth = useCallback(() => {
 		// 1. Init
-		dispatch({ type: LOGIN });
+		setUI({
+			loading: true,
+			error: null,
+		});
 
 		// 2. Generate and save state
 		const state = generateState();
@@ -212,7 +158,10 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 				if (type === OAUTH_RESPONSE) {
 					const errorMaybe = message?.data?.error;
 					if (errorMaybe) {
-						dispatch({ type: LOGIN_ERROR, error: errorMaybe });
+						setUI({
+							loading: false,
+							error: errorMaybe || 'Unknown Error',
+						});
 						if (onError) await onError(errorMaybe);
 					} else {
 						let payload = message?.data?.payload;
@@ -232,7 +181,11 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 							);
 							payload = await response.json();
 						}
-						dispatch({ type: LOGIN_SUCCESS, data: payload });
+						setUI({
+							loading: false,
+							error: null,
+						});
+						setData(payload);
 						if (onSuccess) {
 							await onSuccess(payload);
 						}
@@ -240,7 +193,10 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 				}
 			} catch (genericError: any) {
 				console.error(genericError);
-				dispatch({ type: 'LOGIN_ERROR', error: genericError.toString() });
+				setUI({
+					loading: false,
+					error: genericError.toString(),
+				});
 			} finally {
 				// Clear stuff ...
 				cleanup(intervalRef, popupRef, handleMessageListener);
@@ -253,9 +209,10 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 			const popupClosed = !popupRef.current?.window || popupRef.current?.window?.closed;
 			if (popupClosed) {
 				// Popup was closed before completing auth...
-				dispatch({
-					type: LOGIN_CANCEL,
-				});
+				setUI((ui) => ({
+					...ui,
+					loading: false,
+				}));
 				console.warn('Warning: Popup was closed before completing authentication.');
 				clearInterval(intervalRef.current);
 				removeState();
@@ -278,10 +235,11 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 		exchangeCodeForTokenMethod,
 		onSuccess,
 		onError,
-		dispatch,
+		setUI,
+		setData,
 	]);
 
-	return { ...hookState, getAuth };
+	return { data, loading, error, getAuth };
 };
 
 export default useOauth2;
