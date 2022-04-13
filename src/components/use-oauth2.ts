@@ -127,9 +127,12 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 	const popupRef = useRef<Window | null>();
 	const intervalRef = useRef<any>();
 	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
-	const [data, setData] = useLocalStorageState<State>(`${authorizeUrl}-${clientId}-${scope}`, {
-		defaultValue: null,
-	});
+	const [data, setData] = useLocalStorageState<State>(
+		`${responseType}-${authorizeUrl}-${clientId}-${scope}`,
+		{
+			defaultValue: null,
+		}
+	);
 
 	const exchangeCodeForTokenServerURL =
 		responseType === 'code' && props.exchangeCodeForTokenServerURL;
