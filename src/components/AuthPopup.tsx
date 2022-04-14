@@ -12,7 +12,13 @@ type Props = {
 };
 
 const AuthPopup = (props: Props) => {
-	const { Component = <div style={{ margin: '12px' }}>Loading...</div> } = props;
+	const {
+		Component = (
+			<div style={{ margin: '12px' }} data-testid="popup-loading">
+				Loading...
+			</div>
+		),
+	} = props;
 
 	// On mount
 	useEffect(() => {
@@ -22,6 +28,10 @@ const AuthPopup = (props: Props) => {
 		};
 		const state = payload?.state;
 		const error = payload?.error;
+
+		if (!window.opener) {
+			throw new Error('No window opener');
+		}
 
 		if (error) {
 			window.opener.postMessage({
