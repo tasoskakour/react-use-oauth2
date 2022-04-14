@@ -23,6 +23,10 @@ type Query = {
 const CLIENT_SECRET = process.env.CLIENT_SECRET as string;
 const AUTHORIZATION_SERVER_TOKEN_URL = process.env.AUTHORIZATION_SERVER_TOKEN_URL as string;
 
+fastify.head('/', async (request, reply) => {
+	reply.send('OK');
+});
+
 fastify.post('/token', async (request, reply) => {
 	const { code, client_id, grant_type, redirect_uri } = request.query as Query;
 
