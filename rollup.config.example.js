@@ -41,7 +41,7 @@ export default [
 		plugins: [
 			...commonPlugins,
 			serve({
-				open: true,
+				open: false,
 				verbose: true,
 				contentBase: ['.', './example/client'],
 				host: 'localhost',
