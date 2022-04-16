@@ -12,7 +12,7 @@
     "nodejs",
     "oauth2"
   ],
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A React hook that handles OAuth2 authorization flow.",
   "license": "MIT",
   "homepage": "https://github.com/tasoskakour/react-use-oauth2#readme",
