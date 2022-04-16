@@ -5,9 +5,16 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
 import run from '@rollup/plugin-run';
+import replace from '@rollup/plugin-replace';
 import builtins from 'builtin-modules';
 
 const commonPlugins = [
+	replace({
+		values: {
+			'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
+		},
+		preventAssignment: true,
+	}),
 	commonjs({
 		ignoreDynamicRequires: true,
 	}),
