@@ -99,5 +99,8 @@
   "types": "dist/index.d.ts",
   "lint-staged": {
     "*.{js,ts,tsx}": "eslint --cache --fix"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
