@@ -1,7 +1,7 @@
-import { useOauth2 } from '../../src/components';
+import { useOAuth2 } from '../../src/components';
 
 const LoginCode = () => {
-	const { data, loading, error, getAuth } = useOauth2({
+	const { data, loading, error, getAuth } = useOAuth2({
 		authorizeUrl: 'http://localhost:3001/mock-authorize',
 		clientId: 'SOME_CLIENT_ID',
 		redirectUri: `${document.location.origin}/callback`,
