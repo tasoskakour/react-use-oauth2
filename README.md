@@ -2,7 +2,7 @@
 
 ![gh workflow](https://github.com/tasoskakour/react-use-oauth2/actions/workflows/ci-cd.yml/badge.svg) [![npm](https://img.shields.io/npm/v/@tasoskakour/react-use-oauth2.svg?style=svg&logo=npm&label=)](https://www.npmjs.com/package/@tasoskakour/react-use-oauth2)
 
-> A custom React hook that makes OAuth2 authorization simple. Both for Implicit and Authorization Code flows.
+> 💎 A custom React hook that makes OAuth2 authorization simple. Both for Implicit and Authorization Code flows.
 
 ## Features
 
@@ -103,36 +103,36 @@ If you want to re-trigger the authorization flow just call `getAuth()` function 
 
 ## API
 
-`function useOAuth2(options): {data, loading, error, getAuth}`
+- `function useOAuth2(options): {data, loading, error, getAuth}`
 
 This is the hook that makes this package to work. `Options` is an object that contains the properties below
 
-- `authorizeUrl` (string): The 3rd party authorization URL (e.g https://accounts.google.com/o/oauth2/v2/auth).
-- `clientId` (string): The OAuth2 client id of your application.
-- `redirectUri` (string): Determines where the 3rd party API server redirects the user after the user completes the authorization flow. In our [example](#usage-example) the Popup is rendered on that redirectUri.
-- `scope` (string - _optional_): A list of scopes depending on your application needs.
-- `responseType` (string): Can be either **code** for _code authorization grant_ or **token** for _implicit grant_ .
-- `exchangeCodeForTokenServerURL` (string): This property is only used when using _code authorization grant_ flow (responseType = code). It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#what-is-the-purpose-of-exchangeCodeForTokenServerURL-for-authorization-code-flows?).
-- `exchangeCodeForTokenMethod` (string - _optional_): Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST**.
-- `onSuccess` (function): Called after a complete successful authorization flow.
-- `onError` (function): Called when an error occurs.
+- **authorizeUrl** (string): The 3rd party authorization URL (e.g https://accounts.google.com/o/oauth2/v2/auth).
+- **clientId** (string): The OAuth2 client id of your application.
+- **redirectUri** (string): Determines where the 3rd party API server redirects the user after the user completes the authorization flow. In our [example](#usage-example) the Popup is rendered on that redirectUri.
+- **scope** (string - _optional_): A list of scopes depending on your application needs.
+- **responseType** (string): Can be either **code** for _code authorization grant_ or **token** for _implicit grant_ .
+- **exchangeCodeForTokenServerURL** (string): This property is only used when using _code authorization grant_ flow (responseType = code). It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#what-is-the-purpose-of-exchangecodefortokenserverurl-for-authorization-code-flows).
+- **exchangeCodeForTokenMethod** (string - _optional_): Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST**.
+- **onSuccess** (function): Called after a complete successful authorization flow.
+- **onError** (function): Called when an error occurs.
 
 **Returns**:
 
-- `data` (object): Consists of the retrieved auth data and generally will have the shape of `{access_token, token_type, expires_in}` (check [Typescript](#typescript) usage for providing custom shape).
-- `loading` (boolean): Is set to true while the authorization is taking place.
-- `error` (string): Is set when an error occurs.
-- `getAuth` (function): Call this function to trigger the authorization flow.
+- **data** (object): Consists of the retrieved auth data and generally will have the shape of `{access_token, token_type, expires_in}` (check [Typescript](#typescript) usage for providing custom shape).
+- **loading** (boolean): Is set to true while the authorization is taking place.
+- **error** (string): Is set when an error occurs.
+- **getAuth** (function): Call this function to trigger the authorization flow.
 
 ---
 
-`function OAuthPopup(props)`
+- `function OAuthPopup(props)`
 
 This is the component that will be rendered as a window Popup for as long as the authorization is taking place. You need to render this in a place where it does not disrupt the user flow. An ideal place is inside a `Route` component of `react-router-dom` as seen in the [usage example](#usage-example). 
 
 Props consists of: 
 
-- `Component` (ReactElement - _optional_): You can optionally set a custom component to be rendered inside the Popup. By default it just displays a "Loading..." message.
+- **Component** (ReactElement - _optional_): You can optionally set a custom component to be rendered inside the Popup. By default it just displays a "Loading..." message.
 
 ### Typescript
 
