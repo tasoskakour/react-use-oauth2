@@ -11,7 +11,7 @@ type Props = {
 	Component?: React.ReactElement;
 };
 
-const AuthPopup = (props: Props) => {
+const OAuthPopup = (props: Props) => {
 	const {
 		Component = (
 			<div style={{ margin: '12px' }} data-testid="popup-loading">
@@ -54,4 +54,4 @@ const AuthPopup = (props: Props) => {
 	return Component;
 };
 
-export default AuthPopup;
+export default OAuthPopup;

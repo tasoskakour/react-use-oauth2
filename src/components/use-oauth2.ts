@@ -113,7 +113,7 @@ const formatExchangeCodeForTokenServerURL = (
 	})}`;
 };
 
-const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
+const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 	const {
 		authorizeUrl,
 		clientId,
@@ -245,4 +245,4 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 	return { data, loading, error, getAuth };
 };
 
-export default useOauth2;
+export default useOAuth2;

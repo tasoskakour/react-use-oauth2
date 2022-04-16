@@ -1,2 +1,2 @@
-export { default as AuthPopup } from './AuthPopup';
-export { default as useOauth2 } from './use-oauth2';
+export { default as OAuthPopup } from './OAuthPopup';
+export { default as useOAuth2 } from './use-oauth2';
