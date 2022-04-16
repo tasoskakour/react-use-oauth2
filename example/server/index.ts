@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import Fastify from 'fastify';
-import fetch from 'node-fetch';
+import delay from 'delay';
 
 const fastify = Fastify({
 	logger: true,
@@ -13,46 +13,37 @@ fastify.addHook('preHandler', (request, reply, done) => {
 	done();
 });
 
-type Query = {
-	client_id: string;
-	code: string;
-	grant_type: string;
-	redirect_uri: string;
-};
-
-const CLIENT_SECRET = process.env.CLIENT_SECRET as string;
-const AUTHORIZATION_SERVER_TOKEN_URL = process.env.AUTHORIZATION_SERVER_TOKEN_URL as string;
-
 fastify.head('/', async (request, reply) => {
 	reply.send('OK');
 });
 
-fastify.post('/token', async (request, reply) => {
-	const { code, client_id, grant_type, redirect_uri } = request.query as Query;
+fastify.get('/mock-authorize', async (request, reply) => {
+	const { redirect_uri, state, response_type } = request.query as any;
 
-	console.log('SERVER', code, client_id, grant_type, redirect_uri);
+	await delay(500);
 
-	const data = await fetch(
-		`${AUTHORIZATION_SERVER_TOKEN_URL}?grant_type=${grant_type}&client_id=${client_id}&client_secret=${CLIENT_SECRET}&redirect_uri=${redirect_uri}&code=${code}`,
-		{
-			method: 'POST',
-		}
-	);
-
-	reply.send(await data.json());
+	if (response_type === 'code') {
+		reply.redirect(`${redirect_uri}?code=SOME_CODE&state=${state}`);
+	} else {
+		reply.redirect(
+			`${redirect_uri}?access_token=SOME_ACCESS_TOKEN&token_type=Bearer&expires_in=3600&state=${state}`
+		);
+	}
 });
 
-// TODO Create a mock authorize URL to be used for tests
-fastify.get('/mock-code-authorize', (request, reply) => {
-	const { redirect_uri, state } = request.query as any;
+fastify.post('/mock-token', async (request, reply) => {
+	const { code, client_id, grant_type, redirect_uri } = request.query as any;
 
-	reply.redirect(200, `${redirect_uri}?code=some-code&state=${state}`);
+	await delay(1000);
+
+	reply.send({
+		access_token: 'SOME_ACCESS_TOKEN',
+		expires_in: 3600,
+		refresh_token: 'SOME_REFRESH_TOKEN',
+		scope: 'SOME_SCOPE',
+		token_type: 'Bearer',
+	});
 });
-
-// TODO: Just return some Payload...
-fastify.post('/mock-exchange-code-for-token', (request, response) => {});
-
-// TODO: Mock-Implicit-Grant authorize, just return the payload immediately..
 
 fastify.listen(3001, (error) => {
 	if (error) throw error;
