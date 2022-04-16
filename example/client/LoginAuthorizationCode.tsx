@@ -1,8 +1,17 @@
 import { useOauth2 } from '../../src/components';
 
-const REACT_APP_AUTHORIZE_URL = process.env.REACT_APP_AUTHORIZE_URL as string;
-const REACT_APP_CLIENT_ID = process.env.REACT_APP_CLIENT_ID as string;
-const REACT_APP_SCOPE = process.env.REACT_APP_SCOPE as string;
+const REACT_APP_AUTHORIZE_URL =
+	process.env.NODE_ENV === 'test'
+		? 'https://accounts.google.com/o/oauth2/v2/auth'
+		: (process.env.REACT_APP_AUTHORIZE_URL as string);
+const REACT_APP_CLIENT_ID =
+	process.env.NODE_ENV === 'test'
+		? 'some-client-id'
+		: (process.env.REACT_APP_CLIENT_ID as string);
+const REACT_APP_SCOPE =
+	process.env.NODE_ENV === 'test' ? 'some-scope' : (process.env.REACT_APP_SCOPE as string);
+
+console.log('TEST', process.env.NODE_ENV);
 
 const LoginCode = () => {
 	const { data, loading, error, getAuth } = useOauth2({
@@ -32,7 +41,12 @@ const LoginCode = () => {
 	}
 
 	return (
-		<button style={{ margin: '24px' }} type="button" onClick={() => getAuth()}>
+		<button
+			style={{ margin: '24px' }}
+			type="button"
+			id="login-with-authorization-code"
+			onClick={() => getAuth()}
+		>
 			Login with Authorization Code
 		</button>
 	);

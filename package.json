@@ -30,7 +30,7 @@
   "scripts": {
     "build": "rollup -c",
     "example": "rollup -c rollup.config.example.js -w",
-    "test": "npm run lint && start-server-and-test example \"3000|3001\" jest",
+    "test": "NODE_ENV=test npm run lint && start-server-and-test example \"3000|3001\" jest",
     "lint": "eslint . --cache",
     "prepare": "husky install"
   },

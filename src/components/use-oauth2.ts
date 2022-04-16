@@ -148,7 +148,9 @@ const useOauth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 		// 2. Generate and save state
 		const state = generateState();
 		saveState(state);
-
+		console.log(
+			enhanceAuthorizeUrl(authorizeUrl, clientId, redirectUri, scope, state, responseType)
+		);
 		// 3. Open popup
 		popupRef.current = openPopup(
 			enhanceAuthorizeUrl(authorizeUrl, clientId, redirectUri, scope, state, responseType)
