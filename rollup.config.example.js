@@ -14,9 +14,10 @@ const commonPlugins = [
 		values: {
 			'process.env.REACT_APP_CLIENT_ID': `'${process.env.REACT_APP_CLIENT_ID}'`,
 			'process.env.REACT_APP_AUTHORIZE_URL': `'${process.env.REACT_APP_AUTHORIZE_URL}'`,
-			'process.env.REACT_APP_CLIENT_SECRET': `'${process.env.REACT_APP_CLIENT_SECRET}'`,
 			'process.env.REACT_APP_SCOPE': `'${process.env.REACT_APP_SCOPE}'`,
-			'process.env.NODE_ENV': '"development"',
+			'process.env.AUTHORIZATION_SERVER_TOKEN_URL': `'${process.env.AUTHORIZATION_SERVER_TOKEN_URL}'`,
+			'process.env.CLIENT_SECRET': `'${process.env.CLIENT_SECRET}'`,
+			'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
 		},
 		preventAssignment: true,
 	}),
@@ -40,7 +41,7 @@ export default [
 		plugins: [
 			...commonPlugins,
 			serve({
-				open: true,
+				open: false,
 				verbose: true,
 				contentBase: ['.', './example/client'],
 				host: 'localhost',

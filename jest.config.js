@@ -1,4 +1,5 @@
 // eslint-disable-next-line unicorn/prefer-module
 module.exports = {
-	testEnvironment: 'jest-environment-jsdom',
+	preset: 'jest-puppeteer',
+	setupFiles: ['./setup-tests.js'],
 };
