@@ -37,7 +37,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: 🔨 Build it
-        run: npm build
+        run: npm run build
 
       - name: 🚀 Publish to NPM
         run: npm publish
