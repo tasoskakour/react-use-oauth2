@@ -4,6 +4,7 @@ import typescript from '@rollup/plugin-typescript';
 import dts from 'rollup-plugin-dts';
 import { terser } from 'rollup-plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import del from 'rollup-plugin-delete';
 import packageJson from './package.json';
 
 export default [
@@ -22,10 +23,11 @@ export default [
 			},
 		],
 		plugins: [
+			del({ targets: 'dist/*' }),
 			peerDepsExternal(),
 			resolve(),
 			commonjs(),
-			typescript({ tsconfig: './tsconfig.json' }),
+			typescript({ tsconfig: './tsconfig.json', include: ['./src/components/**'] }),
 			terser(),
 		],
 	},

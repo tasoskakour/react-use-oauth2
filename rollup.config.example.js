@@ -1,6 +1,5 @@
 import serve from 'rollup-plugin-serve';
 import livereload from 'rollup-plugin-livereload';
-import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
@@ -9,23 +8,10 @@ import run from '@rollup/plugin-run';
 import builtins from 'builtin-modules';
 
 const commonPlugins = [
-	replace({
-		// process: JSON.stringify({ env: { NODE_ENV: 'development', tasos: 'yolo' } }),
-		values: {
-			'process.env.REACT_APP_CLIENT_ID': `'${process.env.REACT_APP_CLIENT_ID}'`,
-			'process.env.REACT_APP_AUTHORIZE_URL': `'${process.env.REACT_APP_AUTHORIZE_URL}'`,
-			'process.env.REACT_APP_SCOPE': `'${process.env.REACT_APP_SCOPE}'`,
-			'process.env.AUTHORIZATION_SERVER_TOKEN_URL': `'${process.env.AUTHORIZATION_SERVER_TOKEN_URL}'`,
-			'process.env.CLIENT_SECRET': `'${process.env.CLIENT_SECRET}'`,
-			'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
-		},
-		preventAssignment: true,
-	}),
 	commonjs({
 		ignoreDynamicRequires: true,
 	}),
 	resolve(),
-
 	json(),
 	typescript({ tsconfig: './tsconfig.json' }),
 ];
