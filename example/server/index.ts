@@ -32,8 +32,6 @@ fastify.get('/mock-authorize', async (request, reply) => {
 });
 
 fastify.post('/mock-token', async (request, reply) => {
-	const { code, client_id, grant_type, redirect_uri } = request.query as any;
-
 	await delay(1000);
 
 	reply.send({
