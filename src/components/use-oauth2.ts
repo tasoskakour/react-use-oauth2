@@ -35,6 +35,7 @@ export type Oauth2Props<TData = AuthTokenPayload> = {
 	clientId: string;
 	redirectUri: string;
 	scope?: string;
+	extraQueryParameters?: Record<string, any>;
 	onError?: (error: string) => void;
 } & ResponseTypeBasedProps<TData>;
 
@@ -44,9 +45,19 @@ const enhanceAuthorizeUrl = (
 	redirectUri: string,
 	scope: string,
 	state: string,
-	responseType: Oauth2Props['responseType']
+	responseType: Oauth2Props['responseType'],
+	extraQueryParametersRef: React.MutableRefObject<Oauth2Props['extraQueryParameters']>
 ) => {
-	return `${authorizeUrl}?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+	const query = objectToQuery({
+		response_type: responseType,
+		client_id: clientId,
+		redirect_uri: redirectUri,
+		scope,
+		state,
+		...extraQueryParametersRef.current,
+	});
+
+	return `${authorizeUrl}?${query}`;
 };
 
 // https://medium.com/@dazcyril/generating-cryptographic-random-state-in-javascript-in-the-browser-c538b3daae50
@@ -120,10 +131,12 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 		redirectUri,
 		scope = '',
 		responseType,
+		extraQueryParameters = {},
 		onSuccess,
 		onError,
 	} = props;
 
+	const extraQueryParametersRef = useRef(extraQueryParameters);
 	const popupRef = useRef<Window | null>();
 	const intervalRef = useRef<any>();
 	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
@@ -151,7 +164,15 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 		// 3. Open popup
 		popupRef.current = openPopup(
-			enhanceAuthorizeUrl(authorizeUrl, clientId, redirectUri, scope, state, responseType)
+			enhanceAuthorizeUrl(
+				authorizeUrl,
+				clientId,
+				redirectUri,
+				scope,
+				state,
+				responseType,
+				extraQueryParametersRef
+			)
 		);
 
 		// 4. Register message listener
