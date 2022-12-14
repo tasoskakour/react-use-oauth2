@@ -86,7 +86,7 @@ Generally when we're working with authorization code flows, we need to *immediat
 
 In order for the flow to be accomplished, the 3rd party provider we're authorizing against (e.g Google, Facebook etc), will provide an API call (e.g for Google is `https://oauth2.googleapis.com/token`) that we need to hit in order to exchange the code for an access token. However, this call requires the `client_secret` of your 3rd party app as a parameter to work - a secret that you cannot expose to your front-end app. 
 
-That's why you need to proxy this call to your back-end and `exchangeCodeForTokenServerURL` is the API URL of your back-end route that will take care of this. The request parameters that will get passed along as **query parameters** are `{ code, client_id, grant_type, redirect_uri }`. By default this will be a **POST** request but you can change it with the `exchangeCodeForTokenMethod` property. 
+That's why you need to proxy this call to your back-end and `exchangeCodeForTokenServerURL` is the API URL of your back-end route that will take care of this. The request parameters that will get passed along as **query parameters** are `{ code, client_id, grant_type, redirect_uri, state }`. By default this will be a **POST** request but you can change it with the `exchangeCodeForTokenMethod` property. 
 
 
 You can read more about "Exchanging authorization code for refresh and access tokens" in [Google OAuth2 documentation](https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code).

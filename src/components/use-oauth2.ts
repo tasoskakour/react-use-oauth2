@@ -111,7 +111,8 @@ const formatExchangeCodeForTokenServerURL = (
 	exchangeCodeForTokenServerURL: string,
 	clientId: string,
 	code: string,
-	redirectUri: string
+	redirectUri: string,
+	state: string
 ) => {
 	const url = exchangeCodeForTokenServerURL.split('?')[0];
 	const anySearchParameters = queryToObject(exchangeCodeForTokenServerURL.split('?')[1]);
@@ -121,6 +122,7 @@ const formatExchangeCodeForTokenServerURL = (
 		grant_type: 'authorization_code',
 		code,
 		redirect_uri: redirectUri,
+		state,
 	})}`;
 };
 
@@ -195,7 +197,8 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 									exchangeCodeForTokenServerURL,
 									clientId,
 									payload?.code,
-									redirectUri
+									redirectUri,
+									state
 								),
 								{
 									method:

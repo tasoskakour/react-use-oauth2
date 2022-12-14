@@ -36,10 +36,16 @@ test('Login with authorization code flow works as expected', async () => {
 	await page.waitForResponse(async (response) => {
 		const url = decodeURIComponent(response.url());
 		const json = await response.json();
+		const urlPath = url.split('?')[0];
+		const urlQuery = new URLSearchParams(url.replace(urlPath, ''));
 
 		return (
-			url ===
-				'http://localhost:3001/mock-token?client_id=SOME_CLIENT_ID&grant_type=authorization_code&code=SOME_CODE&redirect_uri=http://localhost:3000/callback' &&
+			urlPath === 'http://localhost:3001/mock-token' &&
+			urlQuery.get('client_id') === 'SOME_CLIENT_ID' &&
+			urlQuery.get('grant_type') === 'authorization_code' &&
+			urlQuery.get('code') === 'SOME_CODE' &&
+			urlQuery.get('redirect_uri') === 'http://localhost:3000/callback' &&
+			Boolean(urlQuery.get('state')?.match(/.*\S.*/)) &&
 			json.access_token === 'SOME_ACCESS_TOKEN' &&
 			json.expires_in === 3600 &&
 			json.refresh_token === 'SOME_REFRESH_TOKEN' &&
