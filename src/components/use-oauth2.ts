@@ -179,43 +179,45 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 		// 4. Register message listener
 		async function handleMessageListener(message: MessageEvent<any>) {
+			const type = message?.data?.type
+			if (type !== OAUTH_RESPONSE) {
+				return
+			}
 			try {
-				const type = message?.data?.type;
-				if (type === OAUTH_RESPONSE) {
-					const errorMaybe = message?.data?.error;
-					if (errorMaybe) {
-						setUI({
-							loading: false,
-							error: errorMaybe || 'Unknown Error',
-						});
-						if (onError) await onError(errorMaybe);
-					} else {
-						let payload = message?.data?.payload;
-						if (responseType === 'code' && exchangeCodeForTokenServerURL) {
-							const response = await fetch(
-								formatExchangeCodeForTokenServerURL(
-									exchangeCodeForTokenServerURL,
-									clientId,
-									payload?.code,
-									redirectUri,
-									state
-								),
-								{
-									method:
-										exchangeCodeForTokenMethod ||
-										DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-								}
-							);
-							payload = await response.json();
-						}
-						setUI({
-							loading: false,
-							error: null,
-						});
-						setData(payload);
-						if (onSuccess) {
-							await onSuccess(payload);
-						}
+
+				const errorMaybe = message?.data?.error;
+				if (errorMaybe) {
+					setUI({
+						loading: false,
+						error: errorMaybe || 'Unknown Error',
+					});
+					if (onError) await onError(errorMaybe);
+				} else {
+					let payload = message?.data?.payload;
+					if (responseType === 'code' && exchangeCodeForTokenServerURL) {
+						const response = await fetch(
+							formatExchangeCodeForTokenServerURL(
+								exchangeCodeForTokenServerURL,
+								clientId,
+								payload?.code,
+								redirectUri,
+								state
+							),
+							{
+								method:
+									exchangeCodeForTokenMethod ||
+									DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+							}
+						);
+						payload = await response.json();
+					}
+					setUI({
+						loading: false,
+						error: null,
+					});
+					setData(payload);
+					if (onSuccess) {
+						await onSuccess(payload);
 					}
 				}
 			} catch (genericError: any) {
