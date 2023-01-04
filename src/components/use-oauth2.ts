@@ -179,12 +179,11 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 		// 4. Register message listener
 		async function handleMessageListener(message: MessageEvent<any>) {
-			const type = message?.data?.type
+			const type = message?.data?.type;
 			if (type !== OAUTH_RESPONSE) {
-				return
+				return;
 			}
 			try {
-
 				const errorMaybe = message?.data?.error;
 				if (errorMaybe) {
 					setUI({
