@@ -111,7 +111,7 @@ This is the hook that makes this package to work. `Options` is an object that co
 - **clientId** (string): The OAuth2 client id of your application.
 - **redirectUri** (string): Determines where the 3rd party API server redirects the user after the user completes the authorization flow. In our [example](#usage-example) the Popup is rendered on that redirectUri.
 - **scope** (string - _optional_): A list of scopes depending on your application needs.
-- **responseType** (string): Can be either **code** for _code authorization grant_ or **token** for _implicit grant_ .
+- **responseType** (string): Can be either **code** for _code authorization grant_ or **token** for _implicit grant_.
 - **extraQueryParameters** (string - _optional_): An object of extra parameters that you'd like to pass to the query part of the authorizeUrl, e.g {audience: "xyz"}.
 - **exchangeCodeForTokenServerURL** (string): This property is only used when using _code authorization grant_ flow (responseType = code). It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#what-is-the-purpose-of-exchangecodefortokenserverurl-for-authorization-code-flows).
 - **exchangeCodeForTokenMethod** (string - _optional_): Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST**.
