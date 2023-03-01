@@ -50,7 +50,7 @@ const enhanceAuthorizeUrl = (
 ) => {
 	const query = objectToQuery({
 		response_type: responseType,
-		client_id: clientId,
+		client_key: clientId,
 		redirect_uri: redirectUri,
 		scope,
 		state,
@@ -118,7 +118,7 @@ const formatExchangeCodeForTokenServerURL = (
 	const anySearchParameters = queryToObject(exchangeCodeForTokenServerURL.split('?')[1]);
 	return `${url}?${objectToQuery({
 		...anySearchParameters,
-		client_id: clientId,
+		client_key: clientId,
 		grant_type: 'authorization_code',
 		code,
 		redirect_uri: redirectUri,
