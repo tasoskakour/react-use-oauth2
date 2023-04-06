@@ -7,17 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - name: 🧪 Run test script
         run: npm test
@@ -28,18 +26,16 @@ jobs:
     if: contains(github.ref, 'refs/tags/')
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           registry-url: "https://registry.npmjs.org"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - name: 🔨 Build it
         run: npm run build
