@@ -18,7 +18,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: 🧪 Run test script
-        run: DEBUG=start-server-and-test  npm test
+        run: npm test
 
   publish-npm:
     runs-on: ubuntu-latest
