@@ -1,9 +1,9 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import { getTextContent } from './utils';
 
 const URL = 'http://localhost:3000';
 
-let browser: puppeteer.Browser;
+let browser: Browser;
 afterAll((done) => {
 	browser.close();
 

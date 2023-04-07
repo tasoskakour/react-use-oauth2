@@ -1,4 +1,4 @@
-import puppeeteer from 'puppeteer';
+import { Page } from 'puppeteer';
 
-export const getTextContent = (page: puppeeteer.Page, selector: string) =>
+export const getTextContent = (page: Page, selector: string) =>
 	page.$eval(selector, (element) => element.textContent);

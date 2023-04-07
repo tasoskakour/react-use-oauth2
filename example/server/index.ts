@@ -43,6 +43,6 @@ fastify.post('/mock-token', async (request, reply) => {
 	});
 });
 
-fastify.listen({ port: 3001 }, (error) => {
+fastify.listen({ port: 3001, host: 'localhost' }, (error) => {
 	if (error) throw error;
 });
