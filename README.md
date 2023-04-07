@@ -1,6 +1,6 @@
 # @tasoskakour/react-use-oauth2
 
-![gh workflow](https://img.shields.io/github/workflow/status/tasoskakour/react-use-oauth2/CI%20&%20CD) [![npm](https://img.shields.io/npm/v/@tasoskakour/react-use-oauth2.svg?style=svg&logo=npm&label=)](https://www.npmjs.com/package/@tasoskakour/react-use-oauth2)
+![gh workflow](https://img.shields.io/github/actions/workflow/status/tasoskakour/react-use-oauth2/ci-cd.yml?branch=master) [![npm](https://img.shields.io/npm/v/@tasoskakour/react-use-oauth2.svg?style=svg&logo=npm&label=)](https://www.npmjs.com/package/@tasoskakour/react-use-oauth2)
 
 > 💎 A custom React hook that makes OAuth2 authorization simple. Both for **Implicit Grant** and **Authorization Code** flows.
 
