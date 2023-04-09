@@ -1,26 +1,18 @@
 import { useEffect } from 'react';
-import { OAUTH_RESPONSE, OAUTH_STATE_KEY } from './constants';
-import { queryToObject } from './tools';
-
-const checkState = (receivedState: string) => {
-	const state = sessionStorage.getItem(OAUTH_STATE_KEY);
-	return state === receivedState;
-};
+import { OAUTH_RESPONSE } from './constants';
+import { checkState, isWindowOpener, openerPostMessage, queryToObject } from './tools';
 
 type Props = {
 	Component?: React.ReactElement;
 };
 
-const OAuthPopup = (props: Props) => {
-	const {
-		Component = (
-			<div style={{ margin: '12px' }} data-testid="popup-loading">
-				Loading...
-			</div>
-		),
-	} = props;
-
-	// On mount
+const OAuthPopup = ({
+	Component = (
+		<div style={{ margin: '12px' }} data-testid="popup-loading">
+			Loading...
+		</div>
+	),
+}: Props) => {
 	useEffect(() => {
 		const payload = {
 			...queryToObject(window.location.search.split('?')[1]),
@@ -28,26 +20,30 @@ const OAuthPopup = (props: Props) => {
 		};
 		const state = payload?.state;
 		const error = payload?.error;
+		const opener = window?.opener;
 
-		if (!window.opener) {
-			throw new Error('No window opener');
-		}
+		if (isWindowOpener(opener)) {
+			const stateOk = state && checkState(state);
 
-		if (error) {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				error: decodeURI(error) || 'OAuth error: An error has occured.',
-			});
-		} else if (state && checkState(state)) {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				payload,
-			});
+			if (!error && stateOk) {
+				openerPostMessage(opener, {
+					type: OAUTH_RESPONSE,
+					payload,
+				});
+			} else {
+				const errorMessage = error
+					? decodeURI(error)
+					: // eslint-disable-next-line unicorn/no-negated-condition
+					!stateOk
+					? 'OAuth error: State mismatch.'
+					: 'OAuth error: An error has occured.';
+				openerPostMessage(opener, {
+					type: OAUTH_RESPONSE,
+					error: errorMessage,
+				});
+			}
 		} else {
-			window.opener.postMessage({
-				type: OAUTH_RESPONSE,
-				error: 'OAuth error: State mismatch.',
-			});
+			throw new Error('No window opener');
 		}
 	}, []);
 
