@@ -8,6 +8,7 @@ const Home = () => {
 	return (
 		<div style={{ margin: '24px' }}>
 			<LoginAuthorizationCode />
+			<hr />
 			<LoginImplicitGrant />
 		</div>
 	);
