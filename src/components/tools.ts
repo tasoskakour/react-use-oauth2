@@ -17,7 +17,7 @@ export const formatAuthorizeUrl = (
 	scope: string,
 	state: string,
 	responseType: TOauth2Props['responseType'],
-	extraQueryParametersRef: React.MutableRefObject<TOauth2Props['extraQueryParameters']>
+	extraQueryParameters: TOauth2Props['extraQueryParameters'] = {}
 ) => {
 	const query = objectToQuery({
 		response_type: responseType,
@@ -25,7 +25,7 @@ export const formatAuthorizeUrl = (
 		redirect_uri: redirectUri,
 		scope,
 		state,
-		...extraQueryParametersRef.current,
+		...extraQueryParameters,
 	});
 
 	return `${authorizeUrl}?${query}`;
