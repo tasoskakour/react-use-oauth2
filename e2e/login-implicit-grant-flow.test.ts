@@ -1,5 +1,5 @@
 import puppeteer, { Browser } from 'puppeteer';
-import { getTextContent } from './utils';
+import { getTextContent } from './test-utils';
 
 const URL = 'http://localhost:3000';
 
