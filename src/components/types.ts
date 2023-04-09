@@ -1,3 +1,5 @@
+import { OAUTH_RESPONSE } from './constants';
+
 export type TAuthTokenPayload = {
 	token_type: string;
 	expires_in: number;
@@ -29,3 +31,13 @@ export type TOauth2Props<TData = TAuthTokenPayload> = {
 } & TResponseTypeBasedProps<TData>;
 
 export type TState<TData = TAuthTokenPayload> = TData | null;
+
+export type TMessageData =
+	| {
+			type: typeof OAUTH_RESPONSE;
+			error: string;
+	  }
+	| {
+			type: typeof OAUTH_RESPONSE;
+			payload: any;
+	  };
