@@ -32,7 +32,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		loading: false,
 		error: null,
 	});
-	const [data, setData] = useLocalStorageState<TState>(
+	const [data, setData, { removeItem, isPersistent }] = useLocalStorageState<TState>(
 		`${responseType}-${authorizeUrl}-${clientId}-${scope}`,
 		{
 			defaultValue: null,
@@ -155,5 +155,10 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		setData,
 	]);
 
-	return { data, loading, error, getAuth };
+	const logout = useCallback(() => {
+		removeItem();
+		setUI({ loading: false, error: null });
+	}, [removeItem]);
+
+	return { data, loading, error, getAuth, logout, isPersistent };
 };
