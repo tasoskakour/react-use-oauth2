@@ -35,7 +35,7 @@ import { OAuth2Popup, useOAuth2 } from "@tasoskakour/react-use-oauth2";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const Home = () => {
-  const { data, loading, error, getAuth } = useOAuth2({
+  const { data, loading, error, getAuth, logout } = useOAuth2({
     authorizeUrl: "https://example.com/auth",
     clientId: "YOUR_CLIENT_ID",
     redirectUri: `${document.location.origin}/callback`,
@@ -58,7 +58,12 @@ const Home = () => {
   }
 
   if (isLoggedIn) {
-    return <pre>{JSON.stringify(data)}</pre>;
+    return (
+      <div>
+        <pre>{JSON.stringify(data)}</pre>
+        <button onClick={logout}>Logout</button>
+      </div>
+    )
   }
 
   return (
@@ -124,6 +129,8 @@ This is the hook that makes this package to work. `Options` is an object that co
 - **loading** (boolean): Is set to true while the authorization is taking place.
 - **error** (string): Is set when an error occurs.
 - **getAuth** (function): Call this function to trigger the authorization flow.
+- **logout** (function): Call this function to logout and clear all authorization data.
+- **isPersistent** (boolean): Property that returns false if localStorage is throwing an error and the data is stored only in-memory. Useful if you want to notify the user.
 
 ---
 
