@@ -106,6 +106,8 @@ After a successful authorization, data will get persisted to **localStorage** an
 
 If you want to re-trigger the authorization flow just call `getAuth()` function again.
 
+**Note**: In case localStorage is throwing an error (e.g user has disabled it) then you can use the `isPersistent` property which - for this case -will be false. Useful if you want to notify the user that the data is only stored in-memory.
+
 ## API
 
 - `function useOAuth2(options): {data, loading, error, getAuth}`
