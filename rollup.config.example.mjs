@@ -41,7 +41,7 @@ export default [
 				port: 3000,
 				historyApiFallback: true,
 			}),
-			livereload({ watch: 'dist' }),
+			...(process.env.NODE_ENV === 'development' ? [livereload({ watch: 'dist' })] : []),
 		],
 		external: builtins,
 	},

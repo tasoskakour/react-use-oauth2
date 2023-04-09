@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useOAuth2 } from '../../src/components';
 
 const LoginCode = () => {
