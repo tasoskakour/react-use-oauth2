@@ -1,5 +1,5 @@
 import { OAUTH_STATE_KEY, POPUP_HEIGHT, POPUP_WIDTH } from './constants';
-import { TOauth2Props } from './types';
+import { TMessageData, TOauth2Props } from './types';
 
 export const objectToQuery = (object: Record<string, string>) => {
 	return new URLSearchParams(object).toString();
@@ -49,6 +49,11 @@ export const removeState = () => {
 	sessionStorage.removeItem(OAUTH_STATE_KEY);
 };
 
+export const checkState = (receivedState: string) => {
+	const state = sessionStorage.getItem(OAUTH_STATE_KEY);
+	return state === receivedState;
+};
+
 export const openPopup = (url: string) => {
 	// To fix issues with window.screen in multi-monitor setups, the easier option is to
 	// center the pop-up over the parent window.
@@ -65,13 +70,19 @@ export const closePopup = (popupRef: React.MutableRefObject<Window | null | unde
 	popupRef.current?.close();
 };
 
+export const isWindowOpener = (opener: Window | null): opener is Window =>
+	opener !== null && opener !== undefined;
+
+export const openerPostMessage = (opener: Window, message: TMessageData) =>
+	opener.postMessage(message);
+
 export const cleanup = (
-	intervalRef: React.MutableRefObject<any>,
+	intervalRef: React.MutableRefObject<string | number | NodeJS.Timeout | undefined>,
 	popupRef: React.MutableRefObject<Window | null | undefined>,
 	handleMessageListener: any
 ) => {
 	clearInterval(intervalRef.current);
-	closePopup(popupRef);
+	if (popupRef.current && typeof popupRef.current.close === 'function') closePopup(popupRef);
 	removeState();
 	window.removeEventListener('message', handleMessageListener);
 };
