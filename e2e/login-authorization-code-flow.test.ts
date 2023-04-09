@@ -20,7 +20,7 @@ test('Login with authorization code flow works as expected', async () => {
 		browser.on('targetcreated', response);
 	});
 
-	await page.click('#login-with-authorization-code');
+	await page.click('#authorization-code-login');
 
 	// Assess loading
 	await page.waitForSelector('#authorization-code-loading');
@@ -76,4 +76,16 @@ test('Login with authorization code flow works as expected', async () => {
 		scope: 'SOME_SCOPE',
 		token_type: 'Bearer',
 	});
+
+	// Logout
+	await page.click('#authorization-code-logout');
+	expect(await page.$('#authorization-code-data')).toBe(null);
+	expect(await page.$('#authorization-code-login')).not.toBe(null);
+	expect(
+		await page.evaluate(() =>
+			window.localStorage.getItem(
+				'code-http://localhost:3001/mock-authorize-SOME_CLIENT_ID-SOME_SCOPE'
+			)
+		)
+	).toEqual('null');
 });

@@ -20,7 +20,7 @@ test('Login with implicit grant flow works as expected', async () => {
 		browser.on('targetcreated', response);
 	});
 
-	await page.click('#login-with-implicit-grant');
+	await page.click('#implicit-grant-login');
 
 	// Assess loading
 	await page.waitForSelector('#implicit-grant-loading');
@@ -54,4 +54,16 @@ test('Login with implicit grant flow works as expected', async () => {
 		state: expect.anything(),
 		token_type: 'Bearer',
 	});
+
+	// Logout
+	await page.click('#implicit-grant-logout');
+	expect(await page.$('#implicit-grant-data')).toBe(null);
+	expect(await page.$('#implicit-grant-login')).not.toBe(null);
+	expect(
+		await page.evaluate(() =>
+			window.localStorage.getItem(
+				'token-http://localhost:3001/mock-authorize-SOME_CLIENT_ID-SOME_SCOPE'
+			)
+		)
+	).toEqual('null');
 });
