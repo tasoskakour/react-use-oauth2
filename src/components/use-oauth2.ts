@@ -1,132 +1,18 @@
 import { useCallback, useRef, useState } from 'react';
 import useLocalStorageState from 'use-local-storage-state';
+import { DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD, OAUTH_RESPONSE } from './constants';
 import {
-	DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-	OAUTH_RESPONSE,
-	OAUTH_STATE_KEY,
-	POPUP_HEIGHT,
-	POPUP_WIDTH,
-} from './constants';
-import { objectToQuery, queryToObject } from './tools';
+	cleanup,
+	formatAuthorizeUrl,
+	formatExchangeCodeForTokenServerURL,
+	generateState,
+	openPopup,
+	saveState,
+} from './tools';
+import { TAuthTokenPayload, TMessageData, TOauth2Props, TState } from './types';
+import { useCheckProps } from './use-check-props';
 
-export type AuthTokenPayload = {
-	token_type: string;
-	expires_in: number;
-	access_token: string;
-	scope: string;
-	refresh_token: string;
-};
-
-export type ResponseTypeBasedProps<TData> =
-	| {
-			responseType: 'code';
-			exchangeCodeForTokenServerURL: string;
-			exchangeCodeForTokenMethod?: 'POST' | 'GET';
-			onSuccess?: (payload: TData) => void; // TODO as this payload will be custom
-			// TODO Adjust payload type
-	  }
-	| {
-			responseType: 'token';
-			onSuccess?: (payload: TData) => void; // TODO Adjust payload type
-	  };
-
-export type Oauth2Props<TData = AuthTokenPayload> = {
-	authorizeUrl: string;
-	clientId: string;
-	redirectUri: string;
-	scope?: string;
-	extraQueryParameters?: Record<string, any>;
-	onError?: (error: string) => void;
-} & ResponseTypeBasedProps<TData>;
-
-const enhanceAuthorizeUrl = (
-	authorizeUrl: string,
-	clientId: string,
-	redirectUri: string,
-	scope: string,
-	state: string,
-	responseType: Oauth2Props['responseType'],
-	extraQueryParametersRef: React.MutableRefObject<Oauth2Props['extraQueryParameters']>
-) => {
-	const query = objectToQuery({
-		response_type: responseType,
-		client_id: clientId,
-		redirect_uri: redirectUri,
-		scope,
-		state,
-		...extraQueryParametersRef.current,
-	});
-
-	return `${authorizeUrl}?${query}`;
-};
-
-// https://medium.com/@dazcyril/generating-cryptographic-random-state-in-javascript-in-the-browser-c538b3daae50
-const generateState = () => {
-	const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let array = new Uint8Array(40) as any;
-	window.crypto.getRandomValues(array);
-	array = array.map((x: number) => validChars.codePointAt(x % validChars.length));
-	const randomState = String.fromCharCode.apply(null, array);
-	return randomState;
-};
-
-const saveState = (state: string) => {
-	sessionStorage.setItem(OAUTH_STATE_KEY, state);
-};
-
-const removeState = () => {
-	sessionStorage.removeItem(OAUTH_STATE_KEY);
-};
-
-const openPopup = (url: string) => {
-	// To fix issues with window.screen in multi-monitor setups, the easier option is to
-	// center the pop-up over the parent window.
-	const top = window.outerHeight / 2 + window.screenY - POPUP_HEIGHT / 2;
-	const left = window.outerWidth / 2 + window.screenX - POPUP_WIDTH / 2;
-	return window.open(
-		url,
-		'OAuth2 Popup',
-		`height=${POPUP_HEIGHT},width=${POPUP_WIDTH},top=${top},left=${left}`
-	);
-};
-
-const closePopup = (popupRef: React.MutableRefObject<Window | null | undefined>) => {
-	popupRef.current?.close();
-};
-
-const cleanup = (
-	intervalRef: React.MutableRefObject<any>,
-	popupRef: React.MutableRefObject<Window | null | undefined>,
-	handleMessageListener: any
-) => {
-	clearInterval(intervalRef.current);
-	closePopup(popupRef);
-	removeState();
-	window.removeEventListener('message', handleMessageListener);
-};
-
-export type State<TData = AuthTokenPayload> = TData | null;
-
-const formatExchangeCodeForTokenServerURL = (
-	exchangeCodeForTokenServerURL: string,
-	clientId: string,
-	code: string,
-	redirectUri: string,
-	state: string
-) => {
-	const url = exchangeCodeForTokenServerURL.split('?')[0];
-	const anySearchParameters = queryToObject(exchangeCodeForTokenServerURL.split('?')[1]);
-	return `${url}?${objectToQuery({
-		...anySearchParameters,
-		client_id: clientId,
-		grant_type: 'authorization_code',
-		code,
-		redirect_uri: redirectUri,
-		state,
-	})}`;
-};
-
-const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
+export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>) => {
 	const {
 		authorizeUrl,
 		clientId,
@@ -138,11 +24,15 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 		onError,
 	} = props;
 
+	useCheckProps<TData>(props);
 	const extraQueryParametersRef = useRef(extraQueryParameters);
 	const popupRef = useRef<Window | null>();
-	const intervalRef = useRef<any>();
-	const [{ loading, error }, setUI] = useState({ loading: false, error: null });
-	const [data, setData] = useLocalStorageState<State>(
+	const intervalRef = useRef<string | number | NodeJS.Timeout | undefined>();
+	const [{ loading, error }, setUI] = useState<{ loading: boolean; error: string | null }>({
+		loading: false,
+		error: null,
+	});
+	const [data, setData] = useLocalStorageState<TState>(
 		`${responseType}-${authorizeUrl}-${clientId}-${scope}`,
 		{
 			defaultValue: null,
@@ -166,31 +56,31 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 		// 3. Open popup
 		popupRef.current = openPopup(
-			enhanceAuthorizeUrl(
+			formatAuthorizeUrl(
 				authorizeUrl,
 				clientId,
 				redirectUri,
 				scope,
 				state,
 				responseType,
-				extraQueryParametersRef
+				extraQueryParametersRef.current
 			)
 		);
 
 		// 4. Register message listener
-		async function handleMessageListener(message: MessageEvent<any>) {
+		async function handleMessageListener(message: MessageEvent<TMessageData>) {
 			const type = message?.data?.type;
 			if (type !== OAUTH_RESPONSE) {
 				return;
 			}
 			try {
-				const errorMaybe = message?.data?.error;
-				if (errorMaybe) {
+				if ('error' in message.data) {
+					const errorMessage = message.data?.error || 'Unknown Error occured.';
 					setUI({
 						loading: false,
-						error: errorMaybe || 'Unknown Error',
+						error: errorMessage,
 					});
-					if (onError) await onError(errorMaybe);
+					if (onError) await onError(errorMessage);
 				} else {
 					let payload = message?.data?.payload;
 					if (responseType === 'code' && exchangeCodeForTokenServerURL) {
@@ -242,9 +132,7 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 					loading: false,
 				}));
 				console.warn('Warning: Popup was closed before completing authentication.');
-				clearInterval(intervalRef.current);
-				removeState();
-				window.removeEventListener('message', handleMessageListener);
+				cleanup(intervalRef, popupRef, handleMessageListener);
 			}
 		}, 250);
 
@@ -269,5 +157,3 @@ const useOAuth2 = <TData = AuthTokenPayload>(props: Oauth2Props<TData>) => {
 
 	return { data, loading, error, getAuth };
 };
-
-export default useOAuth2;
