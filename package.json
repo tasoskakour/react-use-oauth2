@@ -73,7 +73,7 @@
     "babel-loader": "^9.1.2",
     "builtin-modules": "^3.3.0",
     "delay": "^5.0.0",
-    "eslint": "^8.37.0",
+    "eslint": "^8.39.0",
     "eslint-config-tasoskakour-typescript-prettier": "^2.1.0",
     "fastify": "^4.15.0",
     "husky": "^8.0.3",
