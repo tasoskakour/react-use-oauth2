@@ -23,7 +23,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "use-local-storage-state": "^18.3.0"
+    "use-local-storage-state": "^18.3.3"
   },
   "scripts": {
     "build": "rollup -c",
