@@ -14,7 +14,7 @@
 
 ## Install
 
-_Requires `react@16.8.0` or higher that includes hooks._
+_Requires `react@18.0.0` or higher_
 
 ```console
 yarn add @tasoskakour/react-use-oauth2

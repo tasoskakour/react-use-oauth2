@@ -11,7 +11,7 @@ afterAll((done) => {
 });
 
 test('Login with authorization code flow works as expected', async () => {
-	browser = await puppeteer.launch({});
+	browser = await puppeteer.launch({ headless: 'new' });
 	const page = await browser.newPage();
 
 	await page.goto(URL);
