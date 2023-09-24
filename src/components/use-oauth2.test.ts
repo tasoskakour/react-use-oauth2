@@ -15,6 +15,10 @@ const REDIRECT_URI = 'http://mockRedirectUri';
 const SCOPE = 'some-scope';
 const EXTRA_QUERY_PARAMETERS = { a: 1, b: 2 };
 const EXCHANGE_CODE_FOR_TOKEN_SERVER_URL = 'http://mockExchangeCodeForTokenServerURL';
+const EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS = {
+	Authorization:
+		'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+};
 
 jest.mock('./tools', () => {
 	const originalModule = jest.requireActual('./tools');
@@ -127,6 +131,7 @@ describe('useOAuth2', () => {
 				responseType: 'code',
 				scope: SCOPE,
 				exchangeCodeForTokenServerURL: EXCHANGE_CODE_FOR_TOKEN_SERVER_URL,
+				exchangeCodeForTokenHeaders: EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS,
 				extraQueryParameters: EXTRA_QUERY_PARAMETERS,
 				onSuccess,
 			})
@@ -169,7 +174,10 @@ describe('useOAuth2', () => {
 					REDIRECT_URI,
 					generatedState as string
 				),
-				{ method: 'POST', headers: {} },
+				{
+					method: 'POST',
+					headers: EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS,
+				},
 			]);
 			expect(result.current.loading).toBe(false);
 			expect(result.current.error).toBe(null);
