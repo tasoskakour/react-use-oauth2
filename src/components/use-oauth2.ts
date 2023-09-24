@@ -42,6 +42,8 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 	const exchangeCodeForTokenServerURL =
 		responseType === 'code' && props.exchangeCodeForTokenServerURL;
 	const exchangeCodeForTokenMethod = responseType === 'code' && props.exchangeCodeForTokenMethod;
+	const exchangeCodeForTokenHeaders =
+		responseType === 'code' && props.exchangeCodeForTokenHeaders;
 
 	const getAuth = useCallback(() => {
 		// 1. Init
@@ -96,6 +98,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 								method:
 									exchangeCodeForTokenMethod ||
 									DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+								headers: exchangeCodeForTokenHeaders || {},
 							}
 						);
 						payload = await response.json();
@@ -149,6 +152,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		responseType,
 		exchangeCodeForTokenServerURL,
 		exchangeCodeForTokenMethod,
+		exchangeCodeForTokenHeaders,
 		onSuccess,
 		onError,
 		setUI,

@@ -122,6 +122,7 @@ This is the hook that makes this package to work. `Options` is an object that co
 - **extraQueryParameters** (string - _optional_): An object of extra parameters that you'd like to pass to the query part of the authorizeUrl, e.g {audience: "xyz"}.
 - **exchangeCodeForTokenServerURL** (string): This property is only used when using _code authorization grant_ flow (responseType = code). It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#what-is-the-purpose-of-exchangecodefortokenserverurl-for-authorization-code-flows).
 - **exchangeCodeForTokenMethod** (string - _optional_): Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST**.
+- **exchangeCodeForTokenHeaders** (string - _optional_): An object of extra parameters that will be used for the code-for-token exchange to your server.
 - **onSuccess** (function): Called after a complete successful authorization flow.
 - **onError** (function): Called when an error occurs.
 

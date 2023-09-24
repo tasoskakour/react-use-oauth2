@@ -169,7 +169,7 @@ describe('useOAuth2', () => {
 					REDIRECT_URI,
 					generatedState as string
 				),
-				{ method: 'POST' },
+				{ method: 'POST', headers: {} },
 			]);
 			expect(result.current.loading).toBe(false);
 			expect(result.current.error).toBe(null);
