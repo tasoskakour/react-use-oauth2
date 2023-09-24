@@ -42,8 +42,6 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 	const exchangeCodeForTokenServerURL =
 		responseType === 'code' && props.exchangeCodeForTokenServerURL;
 	const exchangeCodeForTokenMethod = responseType === 'code' && props.exchangeCodeForTokenMethod;
-	const exchangeCodeForTokenBearerToken =
-		responseType === 'code' && props.exchangeCodeForTokenBearerToken;
 
 	const getAuth = useCallback(() => {
 		// 1. Init
@@ -86,11 +84,6 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 				} else {
 					let payload = message?.data?.payload;
 					if (responseType === 'code' && exchangeCodeForTokenServerURL) {
-						console.log({
-							...(exchangeCodeForTokenBearerToken && {
-								Authorization: `Bearer ${exchangeCodeForTokenBearerToken}`,
-							}),
-						});
 						const response = await fetch(
 							formatExchangeCodeForTokenServerURL(
 								exchangeCodeForTokenServerURL,
@@ -103,11 +96,6 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 								method:
 									exchangeCodeForTokenMethod ||
 									DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-								headers: {
-									...(exchangeCodeForTokenBearerToken && {
-										Authorization: `Bearer ${exchangeCodeForTokenBearerToken}`,
-									}),
-								},
 							}
 						);
 						payload = await response.json();
