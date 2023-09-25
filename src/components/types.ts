@@ -13,6 +13,7 @@ export type TResponseTypeBasedProps<TData> =
 			responseType: 'code';
 			exchangeCodeForTokenServerURL: string;
 			exchangeCodeForTokenMethod?: 'POST' | 'GET';
+			exchangeCodeForTokenHeaders?: Record<string, any>;
 			onSuccess?: (payload: TData) => void; // TODO as this payload will be custom
 			// TODO Adjust payload type
 	  }
