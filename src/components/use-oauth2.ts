@@ -54,7 +54,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 
 		// 2. Generate and save state
 		const state = generateState();
-		saveState(state);
+		saveState(sessionStorage, state);
 
 		// 3. Open popup
 		popupRef.current = openPopup(

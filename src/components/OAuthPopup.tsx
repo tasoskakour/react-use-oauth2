@@ -23,7 +23,7 @@ export const OAuthPopup = ({
 		const opener = window?.opener;
 
 		if (isWindowOpener(opener)) {
-			const stateOk = state && checkState(state);
+			const stateOk = state && checkState(opener.sessionStorage, state);
 
 			if (!error && stateOk) {
 				openerPostMessage(opener, {
