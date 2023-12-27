@@ -65,7 +65,7 @@ describe('generateState', () => {
 
 describe('saveState', () => {
 	it('should save the state to sessionStorage', () => {
-		saveState('abc123');
+		saveState(sessionStorage, 'abc123');
 		expect(sessionStorage.getItem(OAUTH_STATE_KEY)).toEqual('abc123');
 	});
 });
@@ -73,7 +73,7 @@ describe('saveState', () => {
 describe('removeState', () => {
 	it('should remove the state from sessionStorage', () => {
 		sessionStorage.setItem(OAUTH_STATE_KEY, 'abc123');
-		removeState();
+		removeState(sessionStorage);
 		expect(sessionStorage.getItem(OAUTH_STATE_KEY)).toBeNull();
 	});
 });
@@ -81,12 +81,12 @@ describe('removeState', () => {
 describe('checkState', () => {
 	it('should return true if the received state matches the saved state', () => {
 		sessionStorage.setItem(OAUTH_STATE_KEY, 'abc123');
-		expect(checkState('abc123')).toBe(true);
+		expect(checkState(sessionStorage, 'abc123')).toBe(true);
 	});
 
 	it('should return false if the received state does not match the saved state', () => {
 		sessionStorage.setItem(OAUTH_STATE_KEY, 'abc123');
-		expect(checkState('def456')).toBe(false);
+		expect(checkState(sessionStorage, 'def456')).toBe(false);
 	});
 });
 

@@ -41,16 +41,16 @@ export const generateState = () => {
 	return randomState;
 };
 
-export const saveState = (state: string) => {
-	sessionStorage.setItem(OAUTH_STATE_KEY, state);
+export const saveState = (storage: Storage, state: string) => {
+	storage.setItem(OAUTH_STATE_KEY, state);
 };
 
-export const removeState = () => {
-	sessionStorage.removeItem(OAUTH_STATE_KEY);
+export const removeState = (storage: Storage) => {
+	storage.removeItem(OAUTH_STATE_KEY);
 };
 
-export const checkState = (receivedState: string) => {
-	const state = sessionStorage.getItem(OAUTH_STATE_KEY);
+export const checkState = (storage: Storage, receivedState: string) => {
+	const state = storage.getItem(OAUTH_STATE_KEY);
 	return state === receivedState;
 };
 
@@ -83,7 +83,7 @@ export const cleanup = (
 ) => {
 	clearInterval(intervalRef.current);
 	if (popupRef.current && typeof popupRef.current.close === 'function') closePopup(popupRef);
-	removeState();
+	removeState(sessionStorage);
 	window.removeEventListener('message', handleMessageListener);
 };
 
