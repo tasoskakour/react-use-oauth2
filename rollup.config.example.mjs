@@ -25,7 +25,7 @@ const commonPlugins = [
 
 export default [
 	{
-		input: 'example/client/index.ts',
+		input: 'example/client/index.tsx',
 		output: {
 			file: 'dist/browser.js',
 			format: 'iife',
