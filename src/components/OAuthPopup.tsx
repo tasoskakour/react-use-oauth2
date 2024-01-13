@@ -6,6 +6,8 @@ type Props = {
 	Component?: React.ReactElement;
 };
 
+let didInit = false;
+
 export const OAuthPopup = ({
 	Component = (
 		<div style={{ margin: '12px' }} data-testid="popup-loading">
@@ -14,6 +16,9 @@ export const OAuthPopup = ({
 	),
 }: Props) => {
 	useEffect(() => {
+		if (didInit) return;
+		didInit = true;
+
 		const payload = {
 			...queryToObject(window.location.search.split('?')[1]),
 			...queryToObject(window.location.hash.split('#')[1]),
