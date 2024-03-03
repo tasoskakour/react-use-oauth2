@@ -32,7 +32,7 @@
 		"test-typeCheck": "tsc --emitDeclarationOnly false --noEmit",
 		"test-unit": "jest --detectOpenHandles --runInBand --config jest.config.unit.ts",
 		"test-e2e": "start-server-and-test example \"http://localhost:3000|http://localhost:3001\" \"jest --detectOpenHandles --runInBand --config jest.config.e2e.ts\"",
-		"test": "npm run lint && npm run test-unit && npm run test-e2e",
+		"test": "npm run lint && npm run test-typeCheck && npm run test-unit && npm run test-e2e",
 		"prepare": "husky install"
 	},
 	"browserslist": {
