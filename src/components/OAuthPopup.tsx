@@ -38,10 +38,12 @@ export const OAuthPopup = ({
 			} else {
 				const errorMessage = error
 					? decodeURI(error)
-					: // eslint-disable-next-line unicorn/no-negated-condition
-					!stateOk
-					? 'OAuth error: State mismatch.'
-					: 'OAuth error: An error has occured.';
+					: `${
+							stateOk
+								? 'OAuth error: An error has occured.'
+								: 'OAuth error: State mismatch.'
+						}`;
+
 				openerPostMessage(opener, {
 					type: OAUTH_RESPONSE,
 					error: errorMessage,
