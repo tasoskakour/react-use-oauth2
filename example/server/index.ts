@@ -1,17 +1,19 @@
 /* eslint-disable camelcase */
 import Fastify from 'fastify';
 import delay from 'delay';
+import formBody from '@fastify/formbody';
+import cors from '@fastify/cors';
 
 const fastify = Fastify({
 	logger: true,
+	exposeHeadRoutes: true,
 });
-fastify.addHook('preHandler', (request, reply, done) => {
-	reply.headers({
-		'Access-Control-Allow-Origin': '*',
-		'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
-	});
-	done();
+
+// eslint-disable-next-line import/no-extraneous-dependencies, unicorn/prefer-module, @typescript-eslint/no-var-requires
+fastify.register(cors, {
+	// put your options here
 });
+fastify.register(formBody);
 
 fastify.head('/', async (request, reply) => {
 	reply.send('OK');
@@ -31,11 +33,25 @@ fastify.get('/mock-authorize', async (request, reply) => {
 	}
 });
 
-fastify.post('/mock-token', async (request, reply) => {
+fastify.get('/mock-token', async (request, reply) => {
+	await delay(1000);
+
+	const { code } = request.query as any;
+
+	reply.send({
+		access_token: `${code}_SOME_ACCESS_TOKEN`,
+		expires_in: 3600,
+		refresh_token: 'SOME_REFRESH_TOKEN',
+		scope: 'SOME_SCOPE',
+		token_type: 'Bearer',
+	});
+});
+
+fastify.post('/mock-token-form-data', async (request, reply) => {
 	await delay(1000);
 
 	reply.send({
-		access_token: 'SOME_ACCESS_TOKEN',
+		access_token: `${(request.body as any).code}_SOME_ACCESS_TOKEN`,
 		expires_in: 3600,
 		refresh_token: 'SOME_REFRESH_TOKEN',
 		scope: 'SOME_SCOPE',
