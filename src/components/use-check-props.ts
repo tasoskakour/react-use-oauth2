@@ -1,4 +1,5 @@
 /* eslint-disable unicorn/consistent-destructuring */
+import { EXCHANGE_CODE_FOR_TOKEN_METHODS } from './constants';
 import { TAuthTokenPayload, TOauth2Props } from './types';
 
 export const useCheckProps = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>) => {
@@ -19,19 +20,31 @@ export const useCheckProps = <TData = TAuthTokenPayload>(props: TOauth2Props<TDa
 		);
 	}
 
-	if (responseType === 'code' && !props.exchangeCodeForTokenServerURL) {
+	if (
+		responseType === 'code' &&
+		!props.exchangeCodeForTokenQuery &&
+		!props.exchangeCodeForTokenQueryFn
+	) {
 		throw new Error(
-			'exchangeCodeForTokenServerURL is required for responseType of "code" for useOAuth2.'
+			'Either `exchangeCodeForTokenQuery` or `exchangeCodeForTokenQueryFn` is required for responseType of "code" for useOAuth2.'
 		);
 	}
 
 	if (
 		responseType === 'code' &&
-		props.exchangeCodeForTokenMethod &&
-		!['POST', 'GET'].includes(props.exchangeCodeForTokenMethod)
+		props.exchangeCodeForTokenQuery &&
+		!props.exchangeCodeForTokenQuery.url
+	) {
+		throw new Error('Value `exchangeCodeForTokenQuery.url` is missing.');
+	}
+
+	if (
+		responseType === 'code' &&
+		props.exchangeCodeForTokenQuery &&
+		!['GET', 'POST', 'PUT', 'PATCH'].includes(props.exchangeCodeForTokenQuery.method)
 	) {
 		throw new Error(
-			'Invalid exchangeCodeForTokenServerURL value. It can be one of "POST" or "GET".'
+			`Invalid \`exchangeCodeForTokenQuery.method\` value. It can be one of ${EXCHANGE_CODE_FOR_TOKEN_METHODS.join(', ')}.`
 		);
 	}
 

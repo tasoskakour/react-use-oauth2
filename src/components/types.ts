@@ -1,4 +1,4 @@
-import { OAUTH_RESPONSE } from './constants';
+import { OAUTH_RESPONSE, EXCHANGE_CODE_FOR_TOKEN_METHODS } from './constants';
 
 export type TAuthTokenPayload = {
 	token_type: string;
@@ -8,18 +8,29 @@ export type TAuthTokenPayload = {
 	refresh_token: string;
 };
 
-export type TResponseTypeBasedProps<TData> =
-	| {
-			responseType: 'code';
-			exchangeCodeForTokenServerURL: string;
-			exchangeCodeForTokenMethod?: 'POST' | 'GET';
-			exchangeCodeForTokenHeaders?: Record<string, any>;
-			onSuccess?: (payload: TData) => void; // TODO as this payload will be custom
-			// TODO Adjust payload type
-	  }
+type TExchangeCodeForTokenQuery = {
+	url: string;
+	method: (typeof EXCHANGE_CODE_FOR_TOKEN_METHODS)[number];
+	headers?: Record<string, any>;
+};
+
+type TExchangeCodeForTokenQueryFn<TData = TAuthTokenPayload> = (
+	callbackParameters: any
+) => Promise<TData>;
+
+export type TResponseTypeBasedProps<TData = TAuthTokenPayload> =
+	| RequireOnlyOne<
+			{
+				responseType: 'code';
+				exchangeCodeForTokenQuery: TExchangeCodeForTokenQuery;
+				exchangeCodeForTokenQueryFn: TExchangeCodeForTokenQueryFn<TData>;
+				onSuccess?: (payload: TData) => void;
+			},
+			'exchangeCodeForTokenQuery' | 'exchangeCodeForTokenQueryFn'
+	  >
 	| {
 			responseType: 'token';
-			onSuccess?: (payload: TData) => void; // TODO Adjust payload type
+			onSuccess?: (payload: TData) => void;
 	  };
 
 export type TOauth2Props<TData = TAuthTokenPayload> = {
@@ -42,3 +53,8 @@ export type TMessageData =
 			type: typeof OAUTH_RESPONSE;
 			payload: any;
 	  };
+
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+	{
+		[K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>>;
+	}[Keys];
