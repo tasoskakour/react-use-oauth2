@@ -39,7 +39,8 @@ fastify.get('/mock-token', async (request, reply) => {
 	const { code } = request.query as any;
 
 	reply.send({
-		access_token: `${code}_SOME_ACCESS_TOKEN`,
+		code,
+		access_token: `SOME_ACCESS_TOKEN`,
 		expires_in: 3600,
 		refresh_token: 'SOME_REFRESH_TOKEN',
 		scope: 'SOME_SCOPE',
@@ -51,7 +52,8 @@ fastify.post('/mock-token-form-data', async (request, reply) => {
 	await delay(1000);
 
 	reply.send({
-		access_token: `${(request.body as any).code}_SOME_ACCESS_TOKEN`,
+		code: (request.body as any).code,
+		access_token: `SOME_ACCESS_TOKEN`,
 		expires_in: 3600,
 		refresh_token: 'SOME_REFRESH_TOKEN',
 		scope: 'SOME_SCOPE',

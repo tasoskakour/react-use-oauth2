@@ -42,7 +42,7 @@ const LoginCode = () => {
 	const isLoggedIn = Boolean(data?.access_token); // or whatever...
 
 	let ui = (
-		<button type="button" id="authorization-code-login" onClick={() => getAuth()}>
+		<button type="button" id="authorization-code-queryfn-login" onClick={() => getAuth()}>
 			Login with Authorization Code with QueryFn
 		</button>
 	);
@@ -52,14 +52,18 @@ const LoginCode = () => {
 	}
 
 	if (loading) {
-		ui = <div id="authorization-code-loading">Loading...</div>;
+		ui = <div id="authorization-code-queryfn-loading">Loading...</div>;
 	}
 
 	if (isLoggedIn) {
 		ui = (
 			<div>
-				<pre id="authorization-code-data">{JSON.stringify(data)}</pre>
-				<button id="authorization-code-logout" type="button" onClick={() => logout()}>
+				<pre id="authorization-code-queryfn-data">{JSON.stringify(data)}</pre>
+				<button
+					id="authorization-code-queryfn-logout"
+					type="button"
+					onClick={() => logout()}
+				>
 					Logout
 				</button>
 			</div>
@@ -68,7 +72,7 @@ const LoginCode = () => {
 
 	return (
 		<div style={{ margin: '24px' }}>
-			<h2>Authorization Code Flow</h2>
+			<h2> Login with Authorization Code with QueryFn</h2>
 			{ui}
 		</div>
 	);
