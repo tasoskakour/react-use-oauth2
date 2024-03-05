@@ -28,22 +28,22 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 	const extraQueryParametersRef = useRef(extraQueryParameters);
 	const popupRef = useRef<Window | null>();
 	const intervalRef = useRef<string | number | NodeJS.Timeout | undefined>();
+	const exchangeCodeForTokenQueryRef = useRef(
+		responseType === 'code' && props.exchangeCodeForTokenQuery
+	);
+	const exchangeCodeForTokenQueryFnRef = useRef(
+		responseType === 'code' && props.exchangeCodeForTokenQueryFn
+	);
 	const [{ loading, error }, setUI] = useState<{ loading: boolean; error: string | null }>({
 		loading: false,
 		error: null,
 	});
-	const [data, setData, { removeItem, isPersistent }] = useLocalStorageState<TState>(
+	const [data, setData, { removeItem, isPersistent }] = useLocalStorageState<TState<TData>>(
 		`${responseType}-${authorizeUrl}-${clientId}-${scope}`,
 		{
 			defaultValue: null,
 		}
 	);
-
-	const exchangeCodeForTokenServerURL =
-		responseType === 'code' && props.exchangeCodeForTokenServerURL;
-	const exchangeCodeForTokenMethod = responseType === 'code' && props.exchangeCodeForTokenMethod;
-	const exchangeCodeForTokenHeaders =
-		responseType === 'code' && props.exchangeCodeForTokenHeaders;
 
 	const getAuth = useCallback(() => {
 		// 1. Init
@@ -85,24 +85,39 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 					if (onError) await onError(errorMessage);
 				} else {
 					let payload = message?.data?.payload;
-					if (responseType === 'code' && exchangeCodeForTokenServerURL) {
-						const response = await fetch(
-							formatExchangeCodeForTokenServerURL(
-								exchangeCodeForTokenServerURL,
-								clientId,
-								payload?.code,
-								redirectUri,
-								state
-							),
-							{
-								method:
-									exchangeCodeForTokenMethod ||
-									DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-								headers: exchangeCodeForTokenHeaders || {},
-							}
-						);
-						payload = await response.json();
+
+					if (responseType === 'code') {
+						const exchangeCodeForTokenQueryFn = exchangeCodeForTokenQueryFnRef.current;
+						const exchangeCodeForTokenQuery = exchangeCodeForTokenQueryRef.current;
+						if (
+							exchangeCodeForTokenQueryFn &&
+							typeof exchangeCodeForTokenQueryFn === 'function'
+						) {
+							payload = await exchangeCodeForTokenQueryFn(message.data?.payload);
+						} else if (exchangeCodeForTokenQuery) {
+							const response = await fetch(
+								formatExchangeCodeForTokenServerURL(
+									exchangeCodeForTokenQuery.url,
+									clientId,
+									payload?.code,
+									redirectUri,
+									state
+								),
+								{
+									method:
+										exchangeCodeForTokenQuery.method ??
+										DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+									headers: exchangeCodeForTokenQuery.headers || {},
+								}
+							);
+							payload = await response.json();
+						} else {
+							throw new Error(
+								'useOAuth2: You must provide `exchangeCodeForTokenQuery` or `exchangeCodeForTokenQueryFn`'
+							);
+						}
 					}
+
 					setUI({
 						loading: false,
 						error: null,
@@ -150,9 +165,6 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		redirectUri,
 		scope,
 		responseType,
-		exchangeCodeForTokenServerURL,
-		exchangeCodeForTokenMethod,
-		exchangeCodeForTokenHeaders,
 		onSuccess,
 		onError,
 		setUI,

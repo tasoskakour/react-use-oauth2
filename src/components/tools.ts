@@ -88,14 +88,14 @@ export const cleanup = (
 };
 
 export const formatExchangeCodeForTokenServerURL = (
-	exchangeCodeForTokenServerURL: string,
+	serverUrl: string,
 	clientId: string,
 	code: string,
 	redirectUri: string,
 	state: string
 ) => {
-	const url = exchangeCodeForTokenServerURL.split('?')[0];
-	const anySearchParameters = queryToObject(exchangeCodeForTokenServerURL.split('?')[1]);
+	const url = serverUrl.split('?')[0];
+	const anySearchParameters = queryToObject(serverUrl.split('?')[1]);
 	return `${url}?${objectToQuery({
 		...anySearchParameters,
 		client_id: clientId,

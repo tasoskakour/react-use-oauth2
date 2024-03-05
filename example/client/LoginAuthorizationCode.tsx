@@ -8,8 +8,13 @@ const LoginCode = () => {
 		redirectUri: `${document.location.origin}/callback`,
 		scope: 'SOME_SCOPE',
 		responseType: 'code',
-		exchangeCodeForTokenServerURL: 'http://localhost:3001/mock-token',
-		exchangeCodeForTokenMethod: 'POST',
+		exchangeCodeForTokenQuery: {
+			method: 'GET',
+			url: 'http://localhost:3001/mock-token',
+			headers: {
+				someHeader: 'someHeader',
+			},
+		},
 		onSuccess: (payload) => console.log('Success', payload),
 		onError: (error_) => console.log('Error', error_),
 	});
