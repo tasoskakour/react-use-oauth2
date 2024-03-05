@@ -35,6 +35,15 @@ jest.mock('./tools', () => {
 
 afterAll(() => jest.resetAllMocks());
 
+const fetchMockPayload = {
+	access_token: 'SOME_ACCESS_TOKEN',
+	expires_in: 3600,
+	refresh_token: 'SOME_REFRESH_TOKEN',
+	scope: 'SOME_SCOPE',
+	token_type: 'Bearer',
+};
+fetchMock.mockResponse(JSON.stringify(fetchMockPayload), { status: 200 });
+
 describe('useOAuth2', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
@@ -47,13 +56,6 @@ describe('useOAuth2', () => {
 
 	it('For responseType=token, should call onSuccess with payload and set data on successful authorization', async () => {
 		const onSuccess = jest.fn();
-		const mockPayload = {
-			access_token: 'SOME_ACCESS_TOKEN',
-			expires_in: 3600,
-			refresh_token: 'SOME_REFRESH_TOKEN',
-			scope: 'SOME_SCOPE',
-			token_type: 'Bearer',
-		};
 
 		const { result } = renderHook(() =>
 			useOAuth2({
@@ -94,7 +96,7 @@ describe('useOAuth2', () => {
 		window.postMessage(
 			{
 				type: OAUTH_RESPONSE,
-				payload: mockPayload,
+				payload: fetchMockPayload,
 			},
 			'*'
 		);
@@ -102,21 +104,14 @@ describe('useOAuth2', () => {
 		await waitFor(() => {
 			expect(result.current.loading).toBe(false);
 			expect(result.current.error).toBe(null);
-			expect(result.current.data).toEqual(mockPayload);
-			expect(onSuccess).toHaveBeenCalledWith(mockPayload);
+			expect(result.current.data).toEqual(fetchMockPayload);
+			expect(onSuccess).toHaveBeenCalledWith(fetchMockPayload);
 			expect(cleanup).toHaveBeenCalled();
 		});
 	});
 
-	it('For responseType=code, should exchange code for token and then run onSuccess with payload and set data on successful authorization', async () => {
+	it('For responseType=code and exchangeCodeForTokenQuery, should exchange code for token and then run onSuccess with payload and set data on successful authorization', async () => {
 		const onSuccess = jest.fn();
-		const fetchMockPayload = {
-			access_token: 'SOME_ACCESS_TOKEN',
-			expires_in: 3600,
-			refresh_token: 'SOME_REFRESH_TOKEN',
-			scope: 'SOME_SCOPE',
-			token_type: 'Bearer',
-		};
 
 		fetchMock.mockResponseOnce(JSON.stringify(fetchMockPayload), {
 			status: 200,
@@ -130,8 +125,11 @@ describe('useOAuth2', () => {
 				redirectUri: REDIRECT_URI,
 				responseType: 'code',
 				scope: SCOPE,
-				exchangeCodeForTokenServerURL: EXCHANGE_CODE_FOR_TOKEN_SERVER_URL,
-				exchangeCodeForTokenHeaders: EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS,
+				exchangeCodeForTokenQuery: {
+					method: 'GET',
+					url: EXCHANGE_CODE_FOR_TOKEN_SERVER_URL,
+					headers: EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS,
+				},
 				extraQueryParameters: EXTRA_QUERY_PARAMETERS,
 				onSuccess,
 			})
@@ -175,8 +173,78 @@ describe('useOAuth2', () => {
 					generatedState as string
 				),
 				{
-					method: 'POST',
+					method: 'GET',
 					headers: EXCHANGE_CODE_FOR_TOKEN_SERVER_HEADERS,
+				},
+			]);
+			expect(result.current.loading).toBe(false);
+			expect(result.current.error).toBe(null);
+			expect(result.current.data).toEqual(fetchMockPayload);
+			expect(onSuccess).toHaveBeenCalledWith(fetchMockPayload);
+			expect(cleanup).toHaveBeenCalled();
+		});
+	});
+
+	it('For responseType=code and exchangeCodeForTokenQueryFn, should exchange code for token and then run onSuccess with payload and set data on successful authorization', async () => {
+		const onSuccess = jest.fn();
+
+		const { result } = renderHook(() =>
+			useOAuth2({
+				authorizeUrl: AUTHORIZE_URL,
+				clientId: CLIENT_ID,
+				redirectUri: REDIRECT_URI,
+				responseType: 'code',
+				scope: SCOPE,
+				exchangeCodeForTokenQueryFn: async (callbackParameters: { code: string }) => {
+					const response = await fetch(EXCHANGE_CODE_FOR_TOKEN_SERVER_URL, {
+						method: 'POST',
+						body: JSON.stringify({ code: callbackParameters.code }),
+						headers: { Accept: 'application/json', 'content-type': 'application/json' },
+					});
+					if (!response.ok) throw new Error('exchangeCodeForTokenQueryFn fail at test');
+					const tokenData = await response.json();
+					return tokenData;
+				},
+				extraQueryParameters: EXTRA_QUERY_PARAMETERS,
+				onSuccess,
+			})
+		);
+		expect(result.current.loading).toBe(false);
+		expect(result.current.error).toBe(null);
+		expect(result.current.data).toBe(null);
+
+		await act(() => result.current.getAuth());
+		expect(result.current.loading).toBe(true);
+
+		const generatedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+		expect(generatedState).toEqual(expect.any(String));
+
+		const formattedAuthorizeUrl = formatAuthorizeUrl(
+			AUTHORIZE_URL,
+			CLIENT_ID,
+			REDIRECT_URI,
+			'some-scope',
+			generatedState as string,
+			'code',
+			EXTRA_QUERY_PARAMETERS
+		);
+		expect(openPopup).toHaveBeenCalledWith(formattedAuthorizeUrl);
+
+		window.postMessage(
+			{
+				type: OAUTH_RESPONSE,
+				payload: { code: 'some-code' },
+			},
+			'*'
+		);
+
+		await waitFor(async () => {
+			expect(fetchMock.mock.lastCall).toEqual([
+				EXCHANGE_CODE_FOR_TOKEN_SERVER_URL,
+				{
+					method: 'POST',
+					body: '{"code":"some-code"}',
+					headers: { Accept: 'application/json', 'content-type': 'application/json' },
 				},
 			]);
 			expect(result.current.loading).toBe(false);

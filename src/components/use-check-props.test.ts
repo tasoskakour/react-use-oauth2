@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { useCheckProps } from './use-check-props';
 import { TOauth2Props } from './types';
+import { EXCHANGE_CODE_FOR_TOKEN_METHODS } from './constants';
 
 // Silence react-test-library intentional error logs
 beforeAll(() => {
@@ -23,7 +24,7 @@ describe('useCheckProps', () => {
 		);
 	});
 
-	test('throws error if exchangeCodeForTokenServerURL is missing for responseType of "code"', () => {
+	test('throws error if exchangeCodeForTokenQuery or exchangeCodeForTokenQueryFn is missing for responseType of "code"', () => {
 		const props = {
 			authorizeUrl: 'https://example.com',
 			clientId: 'test-client-id',
@@ -32,23 +33,25 @@ describe('useCheckProps', () => {
 		} as TOauth2Props;
 		expect(() => renderHook(() => useCheckProps(props))).toThrow(
 			new Error(
-				'exchangeCodeForTokenServerURL is required for responseType of "code" for useOAuth2.'
+				'Either `exchangeCodeForTokenQuery` or `exchangeCodeForTokenQueryFn` is required for responseType of "code" for useOAuth2.'
 			)
 		);
 	});
 
-	test('throws error if invalid exchangeCodeForTokenServerURL value is provided', () => {
+	test('throws error if invalid exchangeCodeForTokenQuery.method value is provided', () => {
 		const props = {
 			authorizeUrl: 'https://example.com',
 			clientId: 'test-client-id',
 			redirectUri: 'https://example.com/callback',
 			responseType: 'code',
-			exchangeCodeForTokenServerURL: 'invalid-url',
-			exchangeCodeForTokenMethod: 'invalid-method',
+			exchangeCodeForTokenQuery: {
+				url: 'https://some-url',
+				method: 'invalid-method',
+			},
 		} as unknown as TOauth2Props;
 		expect(() => renderHook(() => useCheckProps(props))).toThrow(
 			new Error(
-				'Invalid exchangeCodeForTokenServerURL value. It can be one of "POST" or "GET".'
+				`Invalid \`exchangeCodeForTokenQuery.method\` value. It can be one of ${EXCHANGE_CODE_FOR_TOKEN_METHODS.join(', ')}.`
 			)
 		);
 	});

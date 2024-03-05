@@ -5,4 +5,5 @@ export default {
 	testEnvironment: 'jsdom',
 	testMatch: ['<rootDir>/src/**/*.test.{js,jsx,ts,tsx}'],
 	setupFiles: ['./setup-tests.unit.ts'],
+	automock: false,
 } as Config.InitialOptions;
