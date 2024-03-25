@@ -133,6 +133,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 					loading: false,
 					error: genericError.toString(),
 				});
+				if (onError) await onError(genericError.toString());
 			} finally {
 				// Clear stuff ...
 				cleanup(intervalRef, popupRef, handleMessageListener);
