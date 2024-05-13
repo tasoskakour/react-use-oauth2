@@ -85,7 +85,7 @@
 		"jest-fetch-mock": "^3.0.3",
 		"jest-puppeteer": "^9.0.0",
 		"lint-staged": "^13.2.2",
-		"puppeteer": "21.0.0",
+		"puppeteer": "22.8.1",
 		"react-dom": "^18.2.0",
 		"react-router-dom": "^6.11.2",
 		"rollup": "^3.29.4",
