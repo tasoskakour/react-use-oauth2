@@ -11,7 +11,7 @@ afterAll((done) => {
 });
 
 test('Login with authorization code flow and exchangeCodeForQueryFn works as expected', async () => {
-	browser = await puppeteer.launch({ headless: 'new' });
+	browser = await puppeteer.launch();
 	const page = await browser.newPage();
 
 	await page.goto(URL);
