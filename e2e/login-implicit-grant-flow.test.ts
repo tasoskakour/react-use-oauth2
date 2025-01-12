@@ -11,7 +11,9 @@ afterAll((done) => {
 });
 
 test('Login with implicit grant flow works as expected', async () => {
-	browser = await puppeteer.launch();
+	browser = await puppeteer.launch({
+		args: ['--no-sandbox', '--disable-setuid-sandbox'],
+	});
 	const page = await browser.newPage();
 
 	await page.goto(URL);
