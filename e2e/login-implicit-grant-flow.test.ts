@@ -1,5 +1,5 @@
 import puppeteer, { Browser } from 'puppeteer';
-import { getTextContent } from './test-utils';
+import { getTextContent, IS_RUNNING_IN_GITHUB_ACTIONS } from './test-utils';
 
 const URL = 'http://localhost:3000';
 
@@ -11,9 +11,9 @@ afterAll((done) => {
 });
 
 test('Login with implicit grant flow works as expected', async () => {
-	browser = await puppeteer.launch({
-		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-	});
+	browser = await puppeteer.launch(
+		IS_RUNNING_IN_GITHUB_ACTIONS ? { args: ['--no-sandbox', '--disable-setuid-sandbox'] } : {}
+	);
 	const page = await browser.newPage();
 
 	await page.goto(URL);
