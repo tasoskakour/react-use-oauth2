@@ -71,7 +71,7 @@ test('Login with authorization code flow and custom state works as expected', as
 	// Assess UI
 	await page.waitForSelector('#authorization-code-data');
 	expect(await getTextContent(page, '#authorization-code-data')).toBe(
-		'{"code":"SOME_CODE","access_token":"SOME_ACCESS_TOKEN","expires_in":3600,"refresh_token":"SOME_REFRESH_TOKEN","scope":"SOME_SCOPE","token_type":"Bearer"}'
+		'{"code":"SOME_CODE","state":"{\\"foo\\":\\"bar\\",\\"john\\":\\"doe\\"}","access_token":"SOME_ACCESS_TOKEN","expires_in":3600,"refresh_token":"SOME_REFRESH_TOKEN","scope":"SOME_SCOPE","token_type":"Bearer"}'
 	);
 
 	// Assess localStorage
@@ -89,6 +89,7 @@ test('Login with authorization code flow and custom state works as expected', as
 		expires_in: 3600,
 		refresh_token: 'SOME_REFRESH_TOKEN',
 		scope: 'SOME_SCOPE',
+		state: '{"foo":"bar","john":"doe"}',
 		token_type: 'Bearer',
 	});
 
