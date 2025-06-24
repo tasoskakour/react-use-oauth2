@@ -18,6 +18,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		clientId,
 		redirectUri,
 		scope = '',
+		state,
 		responseType,
 		extraQueryParameters = {},
 		onSuccess,
@@ -44,6 +45,8 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 			defaultValue: null,
 		}
 	);
+	const customState = state ?? {};
+	const stringifiedCustomState = JSON.stringify(customState);
 
 	const getAuth = useCallback(() => {
 		// 1. Init
@@ -52,9 +55,9 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 			error: null,
 		});
 
-		// 2. Generate and save state
-		const state = generateState();
-		saveState(sessionStorage, state);
+		// 2. Generate state
+		const finalStateString = generateState(stringifiedCustomState);
+		saveState(sessionStorage, finalStateString); // Save the full object for CSRF checking
 
 		// 3. Open popup
 		popupRef.current = openPopup(
@@ -63,7 +66,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 				clientId,
 				redirectUri,
 				scope,
-				state,
+				finalStateString,
 				responseType,
 				extraQueryParametersRef.current
 			)
@@ -101,7 +104,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 									clientId,
 									payload?.code,
 									redirectUri,
-									state
+									finalStateString
 								),
 								{
 									method:
@@ -141,7 +144,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		}
 		window.addEventListener('message', handleMessageListener);
 
-		// 4. Begin interval to check if popup was closed forcefully by the user
+		// 5. Begin interval to check if popup was closed forcefully by the user
 		intervalRef.current = setInterval(() => {
 			const popupClosed = !popupRef.current?.window || popupRef.current?.window?.closed;
 			if (popupClosed) {
@@ -155,7 +158,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 			}
 		}, 250);
 
-		// 5. Remove listener(s) on unmount
+		// 6. Remove listeners on unmount
 		return () => {
 			window.removeEventListener('message', handleMessageListener);
 			if (intervalRef.current) clearInterval(intervalRef.current);
@@ -170,6 +173,7 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 		onError,
 		setUI,
 		setData,
+		stringifiedCustomState,
 	]);
 
 	const logout = useCallback(() => {

@@ -7,7 +7,7 @@ export const useCheckProps = <TData = TAuthTokenPayload>(props: TOauth2Props<TDa
 		authorizeUrl,
 		clientId,
 		redirectUri,
-		// scope = '',
+		state,
 		responseType,
 		extraQueryParameters = {},
 		onSuccess,
@@ -48,8 +48,18 @@ export const useCheckProps = <TData = TAuthTokenPayload>(props: TOauth2Props<TDa
 		);
 	}
 
-	if (typeof extraQueryParameters !== 'object') {
-		throw new TypeError('extraQueryParameters must be an object for useOAuth2.');
+	if (typeof extraQueryParameters !== 'object' || extraQueryParameters === null) {
+		throw new TypeError('extraQueryParameters must be a plain object for useOAuth2.');
+	}
+
+	if (
+		state !== undefined &&
+		state !== null &&
+		(typeof state !== 'object' || Array.isArray(state))
+	) {
+		throw new TypeError(
+			'The `state` prop for useOAuth2 must be a plain JSON object if provided.'
+		);
 	}
 
 	if (onSuccess && typeof onSuccess !== 'function') {

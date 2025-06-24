@@ -65,7 +65,7 @@ describe('useCheckProps', () => {
 			extraQueryParameters: 'invalid',
 		} as unknown as TOauth2Props;
 		expect(() => renderHook(() => useCheckProps(props))).toThrow(
-			new TypeError('extraQueryParameters must be an object for useOAuth2.')
+			new TypeError('extraQueryParameters must be a plain object for useOAuth2.')
 		);
 	});
 
@@ -93,5 +93,55 @@ describe('useCheckProps', () => {
 		expect(() => renderHook(() => useCheckProps(props))).toThrow(
 			new TypeError('onError callback must be a function for useOAuth2.')
 		);
+	});
+
+	test('throws error if state is a primitive value (string)', () => {
+		const props = {
+			authorizeUrl: 'https://example.com',
+			clientId: 'test-client-id',
+			redirectUri: 'https://example.com/callback',
+			responseType: 'token',
+			state: 'not-an-object',
+		} as unknown as TOauth2Props;
+		expect(() => renderHook(() => useCheckProps(props))).toThrow(
+			new TypeError('The `state` prop for useOAuth2 must be a plain JSON object if provided.')
+		);
+	});
+
+	test('throws error if state is an array', () => {
+		const props = {
+			authorizeUrl: 'https://example.com',
+			clientId: 'test-client-id',
+			redirectUri: 'https://example.com/callback',
+			responseType: 'token',
+			state: ['invalid', 'array'],
+		} as unknown as TOauth2Props;
+		expect(() => renderHook(() => useCheckProps(props))).toThrow(
+			new TypeError('The `state` prop for useOAuth2 must be a plain JSON object if provided.')
+		);
+	});
+
+	test('does NOT throw if state is null', () => {
+		const props = {
+			authorizeUrl: 'https://example.com',
+			clientId: 'test-client-id',
+			redirectUri: 'https://example.com/callback',
+			responseType: 'token',
+			state: null,
+		} as TOauth2Props;
+
+		expect(() => renderHook(() => useCheckProps(props))).not.toThrow();
+	});
+
+	test('does NOT throw if state is a valid object', () => {
+		const props = {
+			authorizeUrl: 'https://example.com',
+			clientId: 'test-client-id',
+			redirectUri: 'https://example.com/callback',
+			responseType: 'token',
+			state: { visitedPage: '/profile' },
+		} as TOauth2Props;
+
+		expect(() => renderHook(() => useCheckProps(props))).not.toThrow();
 	});
 });

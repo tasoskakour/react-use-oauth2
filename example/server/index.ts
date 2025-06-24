@@ -36,10 +36,11 @@ fastify.get('/mock-authorize', async (request, reply) => {
 fastify.get('/mock-token', async (request, reply) => {
 	await delay(1000);
 
-	const { code } = request.query as any;
+	const { code, state } = request.query as any;
 
 	reply.send({
 		code,
+		state,
 		access_token: `SOME_ACCESS_TOKEN`,
 		expires_in: 3600,
 		refresh_token: 'SOME_REFRESH_TOKEN',

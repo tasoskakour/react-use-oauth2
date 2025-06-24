@@ -32,13 +32,17 @@ export const formatAuthorizeUrl = (
 };
 
 // https://medium.com/@dazcyril/generating-cryptographic-random-state-in-javascript-in-the-browser-c538b3daae50
-export const generateState = () => {
+export const generateState = (customStateString?: string | undefined) => {
 	const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	let array = new Uint8Array(40) as any;
 	window.crypto.getRandomValues(array);
 	array = array.map((x: number) => validChars.codePointAt(x % validChars.length));
-	const randomState = String.fromCharCode.apply(null, array);
-	return randomState;
+	const randomKey = String.fromCharCode.apply(null, array);
+	try {
+		return JSON.stringify({ [randomKey]: JSON.parse(customStateString ?? '{}') });
+	} catch {
+		return JSON.stringify({ [randomKey]: {} });
+	}
 };
 
 export const saveState = (storage: Storage, state: string) => {
@@ -87,6 +91,16 @@ export const cleanup = (
 	window.removeEventListener('message', handleMessageListener);
 };
 
+export const extractCustomState = (state: string): any => {
+	try {
+		const parsedState = JSON.parse(state);
+		const [customState] = Object.values(parsedState);
+		return customState ?? {};
+	} catch {
+		return {};
+	}
+};
+
 export const formatExchangeCodeForTokenServerURL = (
 	serverUrl: string,
 	clientId: string,
@@ -102,6 +116,6 @@ export const formatExchangeCodeForTokenServerURL = (
 		grant_type: 'authorization_code',
 		code,
 		redirect_uri: redirectUri,
-		state,
+		state: JSON.stringify(extractCustomState(state)),
 	})}`;
 };

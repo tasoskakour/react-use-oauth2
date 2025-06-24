@@ -10,7 +10,7 @@ afterAll((done) => {
 	done();
 });
 
-test('Login with authorization code flow works as expected', async () => {
+test('Login with authorization code flow and custom state works as expected', async () => {
 	browser = await puppeteer.launch(
 		IS_RUNNING_IN_GITHUB_ACTIONS ? { args: ['--no-sandbox', '--disable-setuid-sandbox'] } : {}
 	);
@@ -43,13 +43,22 @@ test('Login with authorization code flow works as expected', async () => {
 		const urlPath = url.split('?')[0];
 		const urlQuery = new URLSearchParams(url.replace(urlPath, ''));
 
+		const rawState = urlQuery.get('state');
+		const parsedState = JSON.parse(rawState || '{}');
+
+		expect(parsedState).toEqual({
+			foo: 'bar',
+			john: 'doe',
+		}); // ✅ Check extracted custom state content
+
 		return (
 			urlPath === 'http://localhost:3001/mock-token' &&
 			urlQuery.get('client_id') === 'SOME_CLIENT_ID' &&
 			urlQuery.get('grant_type') === 'authorization_code' &&
 			urlQuery.get('code') === 'SOME_CODE' &&
 			urlQuery.get('redirect_uri') === 'http://localhost:3000/callback' &&
-			Boolean(urlQuery.get('state')?.match(/.*\S.*/)) &&
+			rawState !== undefined && // state should exist
+			Object.keys(parsedState).length === 2 && // must match keys
 			json.code === 'SOME_CODE' &&
 			json.access_token === 'SOME_ACCESS_TOKEN' &&
 			json.expires_in === 3600 &&

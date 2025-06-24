@@ -13,6 +13,7 @@ import {
 	openerPostMessage,
 	cleanup,
 	formatExchangeCodeForTokenServerURL,
+	extractCustomState,
 } from './tools';
 
 describe('objectToQuery', () => {
@@ -56,10 +57,41 @@ describe('formatAuthorizeUrl', () => {
 });
 
 describe('generateState', () => {
-	it('should generate a random state', () => {
-		const state = generateState();
-		expect(typeof state).toEqual('string');
-		expect(state.length).toBeGreaterThan(0);
+	it('should generate a random-wrapped empty object if no customState is provided', () => {
+		const stateString = generateState();
+
+		expect(typeof stateString).toBe('string');
+
+		const parsed = JSON.parse(stateString);
+
+		expect(typeof parsed).toBe('object');
+		expect(parsed).not.toBeNull();
+		expect(Object.keys(parsed).length).toBe(1);
+
+		const [randomKey] = Object.keys(parsed);
+		expect(typeof randomKey).toBe('string');
+		expect(parsed[randomKey]).toEqual({});
+	});
+
+	it('should correctly wrap the provided custom state', () => {
+		const customState = { visitedPage: '/dashboard', foo: 'bar' };
+		const stateString = generateState(JSON.stringify(customState));
+
+		const parsed = JSON.parse(stateString);
+		const [randomKey] = Object.keys(parsed);
+
+		expect(typeof randomKey).toBe('string');
+		expect(parsed[randomKey]).toEqual(customState);
+	});
+
+	it('should fallback to empty object if invalid JSON passed', () => {
+		// Force a wrong input manually
+		const stateString = generateState('not-a-valid-json');
+
+		const parsed = JSON.parse(stateString);
+		const [randomKey] = Object.keys(parsed);
+
+		expect(parsed[randomKey]).toEqual({});
 	});
 });
 
@@ -171,15 +203,20 @@ describe('cleanup', () => {
 });
 
 describe('formatExchangeCodeForTokenServerURL', () => {
-	it('should return the URL with query parameters', () => {
+	it('should return the URL with query parameters and extracted state', () => {
 		const exchangeCodeForTokenServerURL = 'https://example.com/oauth/token';
 		const clientId = '123';
 		const code = '456';
 		const redirectUri = 'https://example.com/callback';
-		const state = '789';
+		const wrappedState = JSON.stringify({
+			randomKey_abc: {
+				visitedPage: '/home',
+				foo: 'bar',
+			},
+		});
 
 		const expectedURL =
-			'https://example.com/oauth/token?client_id=123&grant_type=authorization_code&code=456&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&state=789';
+			'https://example.com/oauth/token?client_id=123&grant_type=authorization_code&code=456&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&state=%7B%22visitedPage%22%3A%22%2Fhome%22%2C%22foo%22%3A%22bar%22%7D';
 
 		expect(
 			formatExchangeCodeForTokenServerURL(
@@ -187,8 +224,34 @@ describe('formatExchangeCodeForTokenServerURL', () => {
 				clientId,
 				code,
 				redirectUri,
-				state
+				wrappedState
 			)
 		).toBe(expectedURL);
+	});
+});
+
+describe('extractCustomState', () => {
+	it('should extract the custom state from a wrapped state', () => {
+		const wrappedState = JSON.stringify({
+			randomKey_xyz: {
+				myKey: 'myValue',
+				otherKey: 'otherValue',
+			},
+		});
+
+		expect(extractCustomState(wrappedState)).toEqual({
+			myKey: 'myValue',
+			otherKey: 'otherValue',
+		});
+	});
+
+	it('should return an empty object if parsing fails', () => {
+		const invalidState = '{not-valid-json}';
+
+		expect(extractCustomState(invalidState)).toEqual({});
+	});
+
+	it('should return an empty object if input is empty', () => {
+		expect(extractCustomState('')).toEqual({});
 	});
 });

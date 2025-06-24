@@ -15,6 +15,10 @@ const LoginCode = () => {
 				someHeader: 'someHeader',
 			},
 		},
+		state: {
+			foo: 'bar',
+			john: 'doe',
+		},
 		onSuccess: (payload) => console.log('Success', payload),
 		onError: (error_) => console.log('Error', error_),
 	});

@@ -37,6 +37,7 @@ export type TOauth2Props<TData = TAuthTokenPayload> = {
 	authorizeUrl: string;
 	clientId: string;
 	redirectUri: string;
+	state?: Record<string, any> | null;
 	scope?: string;
 	extraQueryParameters?: Record<string, any>;
 	onError?: (error: string) => void;

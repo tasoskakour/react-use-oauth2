@@ -2,36 +2,38 @@
 
 ![gh workflow](https://img.shields.io/github/actions/workflow/status/tasoskakour/react-use-oauth2/ci-cd.yml?branch=master) [![npm](https://img.shields.io/npm/v/@tasoskakour/react-use-oauth2.svg?style=svg&logo=npm&label=)](https://www.npmjs.com/package/@tasoskakour/react-use-oauth2)
 
-> 💎 A custom React hook that makes OAuth2 authorization simple. Both for **Implicit Grant** and **Authorization Code** flows.
+> 💎 A custom React hook that makes OAuth2 authorization simple — supporting both **Authorization Code** and **Implicit Grant** flows.
 
-## Features
+---
 
-- Usage with both `Implicit` and `Authorization Code` grant flows.
-- Seamlessly **exchanges code for token** via your backend API URL, for authorization code grant flows.
-- Works with **Popup** authorization.
-- Provides data and loading/error states via a hook.
-- **Persists data** to localStorage and automatically syncs auth state between tabs and/or browser windows.
+## ✨ Features
 
-## Install
+- Supports **Authorization Code** and **Implicit Grant** flows.
+- **Exchanges code for token** via your backend automatically (for Authorization Code flow).
+- Handles **popup-based** authorization.
+- Provides **data**, **loading**, and **error** states.
+- **Persists auth state** to `localStorage` and **syncs across tabs**.
 
-_Requires `react@18.0.0` or higher_
+---
 
-```console
+## 📦 Installation
+
+_Requires `react@18` or higher._
+
+```bash
+npm install @tasoskakour/react-use-oauth2
+# or
 yarn add @tasoskakour/react-use-oauth2
 ```
 
-or
+---
 
-```console
-npm i @tasoskakour/react-use-oauth2
-```
+## 🚀 Usage Example
 
-## Usage example
+**Authorization Code Flow Example:**
 
-*For authorization code flow:*
-
-```js
-import { OAuth2Popup, useOAuth2 } from "@tasoskakour/react-use-oauth2";
+```tsx
+import { OAuthPopup, useOAuth2 } from "@tasoskakour/react-use-oauth2";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const Home = () => {
@@ -45,129 +47,163 @@ const Home = () => {
       url: "https://your-backend/token",
       method: "POST",
     },
+    state: {
+      foo: 'bar',
+      customInfo: 'something',
+    },
     onSuccess: (payload) => console.log("Success", payload),
-    onError: (error_) => console.log("Error", error_)
+    onError: (error_) => console.log("Error", error_),
   });
 
   const isLoggedIn = Boolean(data?.access_token); // or whatever...
 
-  if (error) {
-    return <div>Error</div>;
-  }
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isLoggedIn) {
-    return (
-      <div>
-        <pre>{JSON.stringify(data)}</pre>
-        <button onClick={logout}>Logout</button>
-      </div>
-    )
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error</div>;
+  if (isLoggedIn) return (
+    <div>
+      <pre>{JSON.stringify(data)}</pre>
+      <button onClick={logout}>Logout</button>
+    </div>
+  );
 
   return (
-    <button style={{ margin: "24px" }} type="button" onClick={() => getAuth()}>
-      Login
-    </button>
+    <button onClick={getAuth}>Login</button>
   );
 };
 
-const App = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<OAuthPopup />} path="/callback" />
-        <Route element={<Home />} path="/" />
-      </Routes>
-    </BrowserRouter>
-  );
-};
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/callback" element={<OAuthPopup />} />
+    </Routes>
+  </BrowserRouter>
+);
 ```
 
-##### Example with `exchangeCodeForTokenQueryFn`
+---
 
-You can also use `exchangeCodeForTokenQueryFn` if you want full control over your query to your backend, e.g if you must send your data as form-urlencoded:
-```js
-    
-    const { ... } = useOAuth2({
-      // ...
-      // Instead of exchangeCodeForTokenQuery (e.g sending form-urlencoded or similar)...
-      exchangeCodeForTokenQueryFn: async (callbackParameters) => {
-        const formBody = [];
-        for (const key in callbackParameters) {
-          formBody.push(
-            `${encodeURIComponent(key)}=${encodeURIComponent(callbackParameters[key])}`
-          );
-        }
-        const response = await fetch(`YOUR_BACKEND_URL`, {
-          method: 'POST',
-          body: formBody.join('&'),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-          },
-        });
-        if (!response.ok) throw new Error('Failed');
-        const tokenData = await response.json();
-        return tokenData;
-      },.
-      // ...
-    })
-  
+## 📚 Concepts
+
+### 🔹 What is `exchangeCodeForTokenQuery`?
+
+When using the **Authorization Code** flow, after receiving an authorization `code`, you must **exchange** it for an **access token**.  
+You typically do this **server-side** because it requires your OAuth client secret.
+
+The `exchangeCodeForTokenQuery` object lets you specify:
+- `url`: Your backend endpoint that performs the code-to-token exchange.
+- `method`: HTTP method (default: `POST`).
+- `headers`: Optional custom headers.
+
+The backend must call the OAuth provider's token endpoint securely.
+
+[More about exchanging authorization codes ➡️ (Google docs)](https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code)
+
+---
+
+### 🔹 Alternative: `exchangeCodeForTokenQueryFn`
+
+If you need **full control** (e.g., sending `application/x-www-form-urlencoded` body),  
+you can use `exchangeCodeForTokenQueryFn`, a custom async function that manually exchanges the code.
+
+```tsx
+const { getAuth } = useOAuth2({
+  exchangeCodeForTokenQueryFn: async (callbackParameters) => {
+    const formBody = Object.entries(callbackParameters)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join("&");
+
+    const response = await fetch(`YOUR_BACKEND_URL`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body: formBody,
+    });
+
+    if (!response.ok) throw new Error('Failed to exchange code');
+    return response.json();
+  },
+});
 ```
 
-### What is the purpose of `exchangeCodeForTokenQuery` for Authorization Code flows?
+---
 
-Generally when we're working with authorization code flows, we need to *immediately* **exchange** the retrieved *code* with an actual *access token*, after a successful authorization. Most of the times this is needed for back-end apps, but there are many use cases this is useful for front-end apps as well. 
+### 🔹 What about Implicit Grant flows?
 
-In order for the flow to be accomplished, the 3rd party provider we're authorizing against (e.g Google, Facebook etc), will provide an API call (e.g for Google is `https://oauth2.googleapis.com/token`) that we need to hit in order to exchange the code for an access token. However, this call requires the `client_secret` of your 3rd party app as a parameter to work - a secret that you cannot expose to your front-end app. 
+In an **Implicit Grant** (`responseType: 'token'`), the 3rd-party provider sends back the `access_token` **directly** — no server exchange needed.
 
-That's why you need to proxy this call to your back-end and with `exchangeCodeForTokenQuery` object you can provide the schematics of your call e.g `url`, `method` etc. The request parameters that will get passed along as **query parameters** are `{ code, client_id, grant_type, redirect_uri, state }`. By default this will be a **POST** request but you can change it with the `method` property. 
+---
 
+### 🔹 Passing custom state
 
-You can read more about "Exchanging authorization code for refresh and access tokens" in [Google OAuth2 documentation](https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code).
+You can also pass a **custom `state`** object into `useOAuth2`, which will:
+- Be securely wrapped under a random key.
+- Be sent during the authorization request.
+- Be automatically extracted and sent back to your backend during token exchange.
 
-### What's the alternative option `exchangeCodeForTokenQueryFn`?
+Example:
 
-There could be certain cases where `exchangeCodeForTokenQuery` is not enough and you want full control over how you send the request to your backend. For example you may want to send it as a urlencoded form. With this property you can define your callback function which takes `callbackParameters: object` as a parameter (which includes whatever returned from OAuth2 callback e.g `code, scope, state` etc) and must return a promise with a valid object which will contain all the token data state e.g `access_token, expires_in` etc.
+```tsx
+state: {
+  visitedPage: '/checkout',
+  customParam: 'something',
+}
+```
 
-### What's the case with Implicit Grant flows?
+✅ Safely preserves context like `{ visitedPage: '/checkout', customInfo: 'xyz' }` across OAuth.
 
-With an implicit grant flow things are much simpler as the 3rd-party provider immediately returns the `access_token` to the callback request so there's no need to make any action after that. Just set `responseType=token` to use this flow.
+---
 
-### Data persistence
+## 🧠 Data Persistence
 
-After a successful authorization, data will get persisted to **localStorage** and the state will automatically sync to all tabs/pages of the browser. The storage key the data will be written to will be: `{responseType}-{authorizeUrl}-{clientId}-{scope}`. 
+- After login, auth data persists to `localStorage`.
+- Auto-syncs across tabs/windows.
+- The storage key format is:  
+  ```
+  {responseType}-{authorizeUrl}-{clientId}-{scope}
+  ```
+- If you want to re-trigger the authorization flow just call `getAuth()` function again.
+- If localStorage is disabled (e.g. by browser settings), the hook falls back to in-memory storage and sets `isPersistent = false`.
 
-If you want to re-trigger the authorization flow just call `getAuth()` function again.
+---
 
-**Note**: In case localStorage is throwing an error (e.g user has disabled it) then you can use the `isPersistent` property which - for this case - will be false. Useful if you want to notify the user that the data is only stored in-memory.
+## 🛠 API
 
-## API
+```tsx
+const {
+  data,
+  loading,
+  error,
+  getAuth,
+  logout,
+  isPersistent
+} = useOAuth2(options);
+```
 
-- `function useOAuth2(options): {data, loading, error, getAuth}`
+**Options:**
 
-This is the hook that makes this package to work. `Options` is an object that contains the properties below
+| Option | Type | Description |
+|:---|:---|:---|
+| `authorizeUrl` | string | OAuth provider authorization URL  (e.g https://accounts.google.com/o/oauth2/v2/auth) |
+| `clientId` | string | Your app's client ID |
+| `redirectUri` | string | Callback URL after authorization |
+| `scope` | string _(optional)_ | Space-separated OAuth scopes |
+| `responseType` | `'code' \| 'token'` | Authorization Code or Implicit Grant flow |
+| `state` | `Record<string, any> \| null \| undefined` | Custom state object (optional) |
+| `extraQueryParameters` | object _(optional)_ | An object of extra parameters that you'd like to pass to the query part of the authorizeUrl, e.g {audience: "xyz"} |
+| `exchangeCodeForTokenQuery` | object | This property is only required when using code authorization grant flow (responseType = code). Its properties are listed below |
+| `exchangeCodeForTokenQuery.url` | string _(required)_ | It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#-concepts) |
+| `exchangeCodeForTokenQuery.method` | string _(required)_ | Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST** |
+| `exchangeCodeForTokenQuery.headers` | object _(optional)_ | An object of extra parameters that will be used for the code-for-token exchange to your server. |
+| `exchangeCodeForTokenQueryFn` | `function(callbackParameters) => Promise<Object>` _(optional)_ | **Instead of using** `exchangeCodeForTokenQuery` to describe the query, you can take full control and provide query function yourself. `callbackParameters` will contain everything returned from the OAUth2 callback e.g `code, state` etc. You must return a promise with a valid object that will represent your final state - data of the auth procedure. |
+| `onSuccess` | function | Called after a complete successful authorization flow. |
+| `onError` | function | Called when an error occurs. |
 
-- `authorizeUrl`  (string): The 3rd party authorization URL (e.g https://accounts.google.com/o/oauth2/v2/auth).
-- `clientId` (string): The OAuth2 client id of your application.
-- `redirectUri` (string): Determines where the 3rd party API server redirects the user after the user completes the authorization flow. In our [example](#usage-example) the Popup is rendered on that redirectUri.
-- `scope` (string - _optional_): A list of scopes depending on your application needs.
-- `responseType` (string): Can be either **code** for _code authorization grant_ or **token** for _implicit grant_.
-- `extraQueryParameters` (object - _optional_): An object of extra parameters that you'd like to pass to the query part of the authorizeUrl, e.g {audience: "xyz"}.
-- `exchangeCodeForTokenQuery` (object): This property is only required when using _code authorization grant_ flow (responseType = code). It's properties are:
-  - `url` (string - _required_) It specifies the API URL of your server that will get called immediately after the user completes the authorization flow. Read more [here](#what-is-the-purpose-of-exchangecodefortokenserverurl-for-authorization-code-flows).
-  - `method` (string - _required_): Specifies the HTTP method that will be used for the code-for-token exchange to your server. Defaults to **POST**
-  - `headers` (object - _optional_): An object of extra parameters that will be used for the code-for-token exchange to your server.
-- `exchangeCodeForTokenQueryFn` function(callbackParameters) => Promise\<Object\>: **Instead of using** `exchangeCodeForTokenQuery` to describe the query, you can take full control and provide query function yourself. `callbackParameters` will contain everything returned from the OAUth2 callback e.g `code, state` etc. You must return a promise with a valid object that will represent your final state - data of the auth procedure.
-- **onSuccess** (function): Called after a complete successful authorization flow.
-- **onError** (function): Called when an error occurs.
+**Returned fields:**
 
-**Returns**:
-
-- `data` (object): Consists of the retrieved auth data and generally will have the shape of `{access_token, token_type, expires_in}` (check [Typescript](#typescript) usage for providing custom shape). If you're using `responseType: code` and `exchangeCodeForTokenQueryFn` this object will contain whatever you returnn from your query function.
+- `data` (object): Consists of the retrieved auth data and generally will have the shape of `{access_token, token_type, expires_in}` (check [Typescript](#-typescript-support) usage for providing custom shape). If you're using `responseType: code` and `exchangeCodeForTokenQueryFn` this object will contain whatever you return from your query function.
 - `loading` (boolean): Is set to true while the authorization is taking place.
 - `error` (string): Is set when an error occurs.
 - `getAuth` (function): Call this function to trigger the authorization flow.
@@ -178,13 +214,15 @@ This is the hook that makes this package to work. `Options` is an object that co
 
 - `function OAuthPopup(props)`
 
-This is the component that will be rendered as a window Popup for as long as the authorization is taking place. You need to render this in a place where it does not disrupt the user flow. An ideal place is inside a `Route` component of `react-router-dom` as seen in the [usage example](#usage-example). 
+This is the component that will be rendered as a window Popup for as long as the authorization is taking place. You need to render this in a place where it does not disrupt the user flow. An ideal place is inside a `Route` component of `react-router-dom` as seen in the [usage example](#-usage-example). 
 
 Props consists of: 
 
 - `Component` (ReactElement - _optional_): You can optionally set a custom component to be rendered inside the Popup. By default it just displays a "Loading..." message.
 
-### Typescript
+---
+
+## 📜 TypeScript Support
 
 The `useOAuth2` function identity is:
 
@@ -217,20 +255,15 @@ type MyCustomShapeData = {
 const {data, ...} = useOAuth2<MyCustomShapeData>({...});
 ```
 
-### Migrating to v2.0.0 (2024-03-05)
+---
 
-Please follow the steps below to migrate to `v2.0.0`:
+### 🧪 Running Tests
 
-- **DEPRECATED properties**: `exchangeCodeForTokenServerURL`, `exchangeCodeForTokenMethod`, `exchangeCodeForTokenHeaders`
-- **INTRODUCED NEW PROPERTY**: `exchangeCodeForTokenQuery`
-  - `exchangeCodeForTokenQuery` just combines all the above deprecated properties, e.g you can use it like: `exchangeCodeForTokenQuery: { url:"...", method:"POST", headers:{} }`
-
-### Tests
-
-You can run tests by calling
-
-```console
+```bash
 npm test
 ```
 
-It will start a react-app (:3000) and  back-end server (:3001) and then it will run the tests with jest & puppeteer. 
+- Spins up a React app (`localhost:3000`) and a mock server (`localhost:3001`).
+- Runs E2E tests using Jest + Puppeteer.
+- Covers popup opening, redirection, token exchange, custom state handling, logout flow.
+
