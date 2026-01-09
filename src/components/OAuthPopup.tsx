@@ -21,7 +21,7 @@ export const OAuthPopup = ({
 
 		const payload = {
 			...queryToObject(window.location.search.split('?')[1]),
-			...queryToObject(window.location.hash.split('#').at(-1) || ""), // get last element, using hash routing there will be two #
+			...queryToObject(window.location.hash.split('#').at(-1) || ''), // get last element, using hash routing there will be two #
 		};
 		const state = payload?.state;
 		const error = payload?.error;
